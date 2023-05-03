@@ -34,10 +34,10 @@ def pull_data():
         cmd = commands.INTAKE_TEMP
         intake_temperature = connection.query(cmd)
         DATA["intake_temp"] = intake_temperature.value.value
-        with open(travel_name, 'a') as f:
-            f.write(str(time()) + ';' + str(speed.value.value) + ';' + str(rpm.value.value) + ';'
-                    + str(intake_temperature.value.value) + '\n')
-        sleep(1)
+        with open(travel_name, 'a') as ft:
+            ft.write(str(time()) + ';' + str(speed.value.value) + ';' + str(rpm.value.value) + ';'
+                     + str(intake_temperature.value.value) + '\n')
+        sleep(0.1)
 
 
 Thread(target=pull_data).start()

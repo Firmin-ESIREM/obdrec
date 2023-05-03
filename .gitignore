@@ -238,3 +238,4 @@ cython_debug/
 #.idea/
 
 output.csv
+travel_*
