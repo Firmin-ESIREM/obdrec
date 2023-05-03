@@ -7,7 +7,7 @@ from threading import Thread
 connection = OBD()  # connect to OBD adapter
 travel_name = "travel_" + datetime.today().strftime('%Y%m%d_%H%M%S') + ".csv"
 with open(travel_name, 'a') as f:  # create csv file to log data from the travel
-    f.write('time' + ';' + 'speed_kph' + ';' + 'rpm' + ';' + 'intake_temperature' + '\n')
+    f.write('time' + ';' + 'speed_kph' + ';' + 'rpm' + ';' + 'intake_temperature_°C' + '\n')
 
 app = Flask(__name__)
 
