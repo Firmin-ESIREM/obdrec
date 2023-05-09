@@ -1,10 +1,12 @@
 from obd import OBD, commands
 from time import sleep, time
 from datetime import datetime
-from flask import Flask
+from flask import Flask, request
 from threading import Thread
+from json import dumps, loads
+from werkzeug.exceptions import NotFound
 
-connection = OBD()  # connect to OBD adapter
+# connection = OBD()  # connect to OBD adapter
 travel_name = "travel_" + datetime.today().strftime('%Y%m%d_%H%M%S') + ".csv"
 with open(travel_name, 'a') as f:  # create csv file to log data from the travel
     f.write('time' + ';' + 'speed_kph' + ';' + 'rpm' + ';' + 'intake_temperature_degC' + '\n')
@@ -20,7 +22,15 @@ DATA = {
 
 @app.route('/get_data/', methods=["POST"])
 def get_data():
-    return str(DATA)
+    data_type = request.form.get('data_type')
+    data_request = loads(data_type)
+    data_filtered = {}
+    for element in data_request :
+        if element not in DATA.keys() :
+            raise NotFound
+        data_filtered[element] = DATA[element]
+    data_json = dumps(data_filtered)
+    return data_json
 
 
 def pull_data():
@@ -40,4 +50,8 @@ def pull_data():
         print(str(time()) + " : new record")
 
 
-Thread(target=pull_data).start()
+
+# Thread(target=pull_data).start()
+if __name__ == "__main__" :
+    app.run(port=1234)
+
