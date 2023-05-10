@@ -1,5 +1,5 @@
 from obd import OBD, commands
-from time import sleep, time
+from time import time
 from datetime import datetime
 from flask import Flask, request
 from threading import Thread
@@ -25,8 +25,8 @@ def get_data():
     data_type = request.form.get('data_type')
     data_request = loads(data_type)
     data_filtered = {}
-    for element in data_request :
-        if element not in DATA.keys() :
+    for element in data_request:
+        if element not in DATA.keys():
             raise NotFound
         data_filtered[element] = DATA[element]
     data_json = dumps(data_filtered)
@@ -50,8 +50,7 @@ def pull_data():
         print(str(time()) + " : new record")
 
 
-
 Thread(target=pull_data).start()
-if __name__ == "__main__" :
-    app.run(port=1234)
 
+if __name__ == "__main__":
+    app.run(port=1234)
