@@ -3,6 +3,15 @@ import dashboard
 from os import path
 from datetime import datetime
 from csv import reader
+import tkinter as tk
+from tkinter.font import Font
+from threading import Thread
+
+
+ui = tk.Tk(className="Dashboard")
+ui.attributes("-fullscreen", True)
+ui.configure(bg="black", cursor="none")
+speed = tk.StringVar()
 
 mode = dashboard.LIVE
 
@@ -20,16 +29,17 @@ if len(argv) not in [2, 3] \
 
 if argv[1] == "replay" and len(argv) == 3:
     mode = dashboard.REPLAY
-    if not(path.isfile(argv[2])):
+    if not (path.isfile(argv[2])):
         print("The file you specified does not exist.", file=stderr)
         sys_exit(1)
-    if not(argv[2].endswith(".csv")):
+    if not (argv[2].endswith(".csv")):
         print("The file you provided does not seem to be a CSV file.", file=stderr)
         sys_exit(1)
 
 csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 
-if mode == dashboard.REPLAY:
+
+def trip_loop():
     with open(argv[2], 'r') as f:
         lines = f.readlines()
 
@@ -41,8 +51,26 @@ if mode == dashboard.REPLAY:
         trip_beginning = float(list(reader([lines[1]], delimiter=';'))[0][0])
         for line in lines[1:]:
             parsed_line = list(reader([line], delimiter=';'))[0]
-            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds():
+            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds() * 2:
                 pass
             print(parsed_line[1], parsed_line[2])
+            speed.set(str(round(float(parsed_line[1]))))
+
+
+speed_frame = tk.Frame(ui, bg="black")
+speed_frame.pack(expand=True)
+speed_label = tk.Label(speed_frame, textvariable=speed, font=Font(size=100), fg="white", bg="black")
+speed_unit_label = tk.Label(speed_frame, text="km/h", font=Font(size=40), fg="white", bg="black")
+speed_label.pack()
+speed_unit_label.pack()
+
+
+if mode == dashboard.REPLAY:
+    Thread(target=trip_loop).start()
+    ui.mainloop()
+
+
+
+
 
 
