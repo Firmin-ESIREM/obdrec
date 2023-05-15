@@ -7,7 +7,6 @@ import tkinter as tk
 from tkinter.font import Font
 from threading import Thread
 
-
 ui = tk.Tk(className="Dashboard")
 ui.attributes("-fullscreen", True)
 ui.configure(bg="black", cursor="none")
@@ -51,7 +50,7 @@ def trip_loop():
         trip_beginning = float(list(reader([lines[1]], delimiter=';'))[0][0])
         for line in lines[1:]:
             parsed_line = list(reader([line], delimiter=';'))[0]
-            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds() * 2:
+            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds():
                 pass
             print(parsed_line[1], parsed_line[2])
             speed.set(str(round(float(parsed_line[1]))))
@@ -64,13 +63,34 @@ speed_unit_label = tk.Label(speed_frame, text="km/h", font=Font(size=40), fg="wh
 speed_label.pack()
 speed_unit_label.pack()
 
-
 if mode == dashboard.REPLAY:
     Thread(target=trip_loop).start()
     ui.mainloop()
 
 
-
-
-
-
+def gear_change(old_speed, time_diff, new_speed, rpm, combustion):
+    acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
+    if combustion == "E":   # suggest gear changing for petrol motorisation
+        if acceleration > 2:  # suggest to change a gear in an acceleration phase
+            if rpm > 3500:
+                print("gear up")
+        if -2 < acceleration < 2:   # suggest to change a gear at constant speed
+            if rpm > 3000:
+                print("gear up")
+            elif rpm < 2000:
+                print("gear down")
+        if acceleration < -2:   # suggest to change a gear in a deceleration phase
+            if rpm < 2200:
+                print("gear down")
+    elif combustion == "D":    # suggest gear changing for diesel motorisation
+        if acceleration > 2:
+            if rpm > 3000:
+                print("gear up")
+        if -2 < acceleration < 2:
+            if rpm > 3500:
+                print("gear up")
+            elif rpm < 1500:
+                print("gear down")
+        if acceleration < -2:
+            if rpm < 1700:
+                print("gear down")
