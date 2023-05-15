@@ -11,7 +11,7 @@ from threading import Thread
 ui = tk.Tk(className="Dashboard")
 ui.attributes("-fullscreen", True)
 ui.configure(bg="black", cursor="none")
-speed = tk.StringVar()
+speed = tk.StringVar(ui, '0')
 
 mode = dashboard.LIVE
 
@@ -51,18 +51,36 @@ def trip_loop():
         trip_beginning = float(list(reader([lines[1]], delimiter=';'))[0][0])
         for line in lines[1:]:
             parsed_line = list(reader([line], delimiter=';'))[0]
-            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds() * 2:
+            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds():
                 pass
             print(parsed_line[1], parsed_line[2])
             speed.set(str(round(float(parsed_line[1]))))
 
 
-speed_frame = tk.Frame(ui, bg="black")
+canvas = tk.Canvas(ui, bg='white', highlightthickness=0)
+canvas.pack(fill=tk.BOTH, expand=True)
+h = ui.winfo_screenheight()
+w = ui.winfo_screenwidth()
+txt = canvas.create_text(int(w)/2, int(h)/2, font=Font(size=100), fill="black", text=speed.get(), anchor=tk.CENTER)
+
+
+def on_change(varname, index, mode):
+    canvas.itemconfigure(txt, text=ui.getvar(varname))
+
+speed.trace_variable('w', on_change)
+
+
+canvas.create_arc(int(w)/2-150, int(h)/2-150, int(w)/2+150, int(h)/2+150, style=tk.ARC, extent="60", start="330")
+canvas.create_arc(int(w)/2-150, int(h)/2-150, int(w)/2+150, int(h)/2+150, style=tk.ARC, extent="60", start="150")
+
+
+
+"""speed_frame = tk.Frame(ui, bg="black")
 speed_frame.pack(expand=True)
 speed_label = tk.Label(speed_frame, textvariable=speed, font=Font(size=100), fg="white", bg="black")
 speed_unit_label = tk.Label(speed_frame, text="km/h", font=Font(size=40), fg="white", bg="black")
 speed_label.pack()
-speed_unit_label.pack()
+speed_unit_label.pack()"""
 
 
 if mode == dashboard.REPLAY:
