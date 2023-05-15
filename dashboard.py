@@ -73,24 +73,24 @@ def gear_change(old_speed, time_diff, new_speed, rpm, combustion):
     if combustion == "E":   # suggest gear changing for petrol motorisation
         if acceleration > 2:  # suggest to change a gear in an acceleration phase
             if rpm > 3500:
-                print("gear up")
+                return "up"
         if -2 < acceleration < 2:   # suggest to change a gear at constant speed
             if rpm > 3000:
-                print("gear up")
+                return "up"
             elif rpm < 2000:
-                print("gear down")
+                return "down"
         if acceleration < -2:   # suggest to change a gear in a deceleration phase
             if rpm < 2200:
-                print("gear down")
+                return "down"
     elif combustion == "D":    # suggest gear changing for diesel motorisation
         if acceleration > 2:
             if rpm > 3000:
-                print("gear up")
+                return "up"
         if -2 < acceleration < 2:
             if rpm > 3500:
-                print("gear up")
+                return "up"
             elif rpm < 1500:
-                print("gear down")
+                return "down"
         if acceleration < -2:
             if rpm < 1700:
-                print("gear down")
+                return "down"
