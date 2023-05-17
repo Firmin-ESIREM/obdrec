@@ -11,6 +11,7 @@ ui = tk.Tk(className="Dashboard")
 ui.attributes("-fullscreen", True)
 ui.configure(bg="black", cursor="none")
 speed = tk.StringVar(ui, '0')
+RPM_INDICATOR = [None, None]
 
 mode = dashboard.LIVE
 
@@ -38,7 +39,37 @@ if argv[1] == "replay" and len(argv) == 3:
 csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 
 
+def gear_change(old_speed, new_speed, time_diff, rpm, combustion):
+    acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
+    if combustion == "E":  # suggest gear changing for petrol motorisation
+        if acceleration > 2:  # suggest to change a gear in an acceleration phase
+            if rpm > 3500:
+                return "up"
+        if -2 < acceleration < 2:  # suggest to change a gear at constant speed
+            if rpm > 3000:
+                return "up"
+            elif rpm < 2000:
+                return "down"
+        if acceleration < -2:  # suggest to change a gear in a deceleration phase
+            if rpm < 2200:
+                return "down"
+    elif combustion == "D":  # suggest gear changing for diesel motorisation
+        if acceleration > 2:
+            if rpm > 3000:
+                return "up"
+        if -2 < acceleration < 2:
+            if rpm > 3500:
+                return "up"
+            elif rpm < 1500:
+                return "down"
+        if acceleration < -2:
+            if rpm < 1700:
+                return "down"
+
+
+
 def trip_loop():
+    sp1, sp2, sp3, sp4 = None, None, None, None
     with open(argv[2], 'r') as f:
         lines = f.readlines()
 
@@ -52,26 +83,49 @@ def trip_loop():
             parsed_line = list(reader([line], delimiter=';'))[0]
             while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds():
                 pass
-            print(parsed_line[1], parsed_line[2])
+            sp4 = sp3
+            sp3 = sp2
+            sp2 = sp1
+            sp1 = [float(parsed_line[0]), round(float(parsed_line[1]))]
             speed.set(str(round(float(parsed_line[1]))))
+            Thread(target=redo_rpm_arc, args=(round(float(parsed_line[2])),)).start()
+            if all((sp1, sp2, sp3, sp4)):
+                gear_suggestion = gear_change(sp4[1], sp1[1], sp1[0] - sp4[0], round(float(parsed_line[2])), 'E')
+                print(gear_suggestion)
+                #Thread(target=gear_img, args=(gear_suggestion,)).start()
 
 
 canvas = tk.Canvas(ui, bg='white', highlightthickness=0)
 canvas.pack(fill=tk.BOTH, expand=True)
 h = ui.winfo_screenheight()
 w = ui.winfo_screenwidth()
-txt = canvas.create_text(int(w)/2, int(h)/2, font=Font(size=100), fill="black", text=speed.get(), anchor=tk.CENTER)
+txt = canvas.create_text(int(w) / 2, int(h) / 2, font=Font(size=100), fill="black", text=speed.get(), anchor=tk.CENTER)
 
 
 def on_change(varname, index, mode):
     canvas.itemconfigure(txt, text=ui.getvar(varname))
 
+
 speed.trace_variable('w', on_change)
 
 
-canvas.create_arc(int(w)/2-150, int(h)/2-150, int(w)/2+150, int(h)/2+150, style=tk.ARC, extent="60", start="330")
-canvas.create_arc(int(w)/2-150, int(h)/2-150, int(w)/2+150, int(h)/2+150, style=tk.ARC, extent="60", start="150")
+def gear_img(todo):
+    p = tk.PhotoImage(file="image.gif")
+    canvas.create_image(0, 0, anchor=NW, image=p)
+    return
 
+
+def redo_rpm_arc(rpm):
+    rpm_to_scale = rpm * 0.0075
+    right = canvas.create_arc(int(w) / 2 - 150, int(h) / 2 - 150, int(w) / 2 + 150, int(h) / 2 + 150, style=tk.ARC,
+                             extent=str(rpm_to_scale), start=str(210 - rpm_to_scale), width=20)
+    left = canvas.create_arc(int(w) / 2 - 150, int(h) / 2 - 150, int(w) / 2 + 150, int(h) / 2 + 150, style=tk.ARC,
+                              extent=str(rpm_to_scale), start=330, width=20)
+    global RPM_INDICATOR
+    if None not in RPM_INDICATOR:
+        canvas.delete(RPM_INDICATOR[0])
+        canvas.delete(RPM_INDICATOR[1])
+    RPM_INDICATOR = [left, right]
 
 
 """speed_frame = tk.Frame(ui, bg="black")
@@ -86,29 +140,3 @@ if mode == dashboard.REPLAY:
     ui.mainloop()
 
 
-def gear_change(old_speed, time_diff, new_speed, rpm, combustion):
-    acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
-    if combustion == "E":   # suggest gear changing for petrol motorisation
-        if acceleration > 2:  # suggest to change a gear in an acceleration phase
-            if rpm > 3500:
-                return "up"
-        if -2 < acceleration < 2:   # suggest to change a gear at constant speed
-            if rpm > 3000:
-                return "up"
-            elif rpm < 2000:
-                return "down"
-        if acceleration < -2:   # suggest to change a gear in a deceleration phase
-            if rpm < 2200:
-                return "down"
-    elif combustion == "D":    # suggest gear changing for diesel motorisation
-        if acceleration > 2:
-            if rpm > 3000:
-                return "up"
-        if -2 < acceleration < 2:
-            if rpm > 3500:
-                return "up"
-            elif rpm < 1500:
-                return "down"
-        if acceleration < -2:
-            if rpm < 1700:
-                return "down"
