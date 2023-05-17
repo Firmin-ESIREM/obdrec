@@ -41,30 +41,21 @@ csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 
 def gear_change(old_speed, new_speed, time_diff, rpm, combustion):
     acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
-    if combustion == "E":  # suggest gear changing for petrol motorisation
-        if acceleration > 2:  # suggest to change a gear in an acceleration phase
-            if rpm > 3500:
-                return "up"
-        if -2 < acceleration < 2:  # suggest to change a gear at constant speed
-            if rpm > 3000:
-                return "up"
-            elif rpm < 2000:
-                return "down"
-        if acceleration < -2:  # suggest to change a gear in a deceleration phase
-            if rpm < 2200:
-                return "down"
-    elif combustion == "D":  # suggest gear changing for diesel motorisation
-        if acceleration > 2:
-            if rpm > 3000:
-                return "up"
-        if -2 < acceleration < 2:
-            if rpm > 3500:
-                return "up"
-            elif rpm < 1500:
-                return "down"
-        if acceleration < -2:
-            if rpm < 1700:
-                return "down"
+    rpm_limit = [0, 0, 0, 0]
+    if combustion == "E":       # rpm limit for petrol motorisation
+        rpm_limit = [1000, 1700, 2700, 3500]
+    elif combustion == "D":     # rpm limit for diesel motorisation
+        rpm_limit = [1000, 1700, 2700, 3500]
+    if acceleration < -2 and rpm < rpm_limit[1]:
+        return "down"
+    if -2 < acceleration < 2:
+        if rpm < rpm_limit[0] and new_speed > 15 / 3.6:
+            return "down"
+        elif rpm > rpm_limit[2]:
+            return "up"
+    if acceleration > 2 and rpm > rpm_limit[3]:
+        return "up"
+    return None
 
 
 
@@ -138,5 +129,3 @@ speed_unit_label.pack()"""
 if mode == dashboard.REPLAY:
     Thread(target=trip_loop).start()
     ui.mainloop()
-
-
