@@ -20,7 +20,7 @@ DATA = {
 }
 
 
-@app.route('/get_data/', methods=["POST"])
+@app.route('/get_data/', methods=["POST"])  # post retrieve data for the dashboard
 def get_data():
     data_type = request.form.get('data_type')
     data_request = loads(data_type)
