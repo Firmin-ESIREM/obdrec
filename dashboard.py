@@ -6,12 +6,15 @@ from csv import reader
 import tkinter as tk
 from tkinter.font import Font
 from threading import Thread
+from time import sleep
 
 ui = tk.Tk(className="Dashboard")
 ui.attributes("-fullscreen", True)
 ui.configure(bg="black", cursor="none")
 speed = tk.StringVar(ui, '0')
+temperature = tk.StringVar(ui, '0°C')
 RPM_INDICATOR = [None, None]
+GEAR_IMG = None
 
 mode = dashboard.LIVE
 
@@ -42,21 +45,21 @@ csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 def gear_change(old_speed, new_speed, time_diff, rpm, combustion):
     acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
     rpm_limit = [0, 0, 0, 0]
-    if combustion == "E":       # rpm limit for petrol motorisation
+    if combustion == "E":  # rpm limit for petrol motorisation
         rpm_limit = [1000, 1700, 2700, 3500]
-    elif combustion == "D":     # rpm limit for diesel motorisation
+    elif combustion == "D":  # rpm limit for diesel motorisation
         rpm_limit = [1000, 1700, 2700, 3500]
-    if acceleration < -2 and rpm < rpm_limit[1]:
-        return "down"
-    if -2 < acceleration < 2:
-        if rpm < rpm_limit[0] and new_speed > 15 / 3.6:
+    if 15 < new_speed < 90:
+        if acceleration < -2 and rpm < rpm_limit[1]:
             return "down"
-        elif rpm > rpm_limit[2]:
+        if -2 < acceleration < 2:
+            if rpm < rpm_limit[0]:
+                return "down"
+            elif rpm > rpm_limit[2]:
+                return "up"
+        if acceleration > 2 and rpm > rpm_limit[3]:
             return "up"
-    if acceleration > 2 and rpm > rpm_limit[3]:
-        return "up"
     return None
-
 
 
 def trip_loop():
@@ -72,59 +75,70 @@ def trip_loop():
         trip_beginning = float(list(reader([lines[1]], delimiter=';'))[0][0])
         for line in lines[1:]:
             parsed_line = list(reader([line], delimiter=';'))[0]
-            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds():
+            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds() * 4:
                 pass
             sp4 = sp3
             sp3 = sp2
             sp2 = sp1
             sp1 = [float(parsed_line[0]), round(float(parsed_line[1]))]
             speed.set(str(round(float(parsed_line[1]))))
+            temperature.set(str(round(float(parsed_line[3]))) + "°C")
             Thread(target=redo_rpm_arc, args=(round(float(parsed_line[2])),)).start()
             if all((sp1, sp2, sp3, sp4)):
                 gear_suggestion = gear_change(sp4[1], sp1[1], sp1[0] - sp4[0], round(float(parsed_line[2])), 'E')
                 print(gear_suggestion)
-                #Thread(target=gear_img, args=(gear_suggestion,)).start()
+                Thread(target=gear_img, args=(gear_suggestion,)).start()
 
 
-canvas = tk.Canvas(ui, bg='white', highlightthickness=0)
+canvas = tk.Canvas(ui, bg="#526D82", highlightthickness=0)
 canvas.pack(fill=tk.BOTH, expand=True)
 h = ui.winfo_screenheight()
 w = ui.winfo_screenwidth()
-txt = canvas.create_text(int(w) / 2, int(h) / 2, font=Font(size=100), fill="black", text=speed.get(), anchor=tk.CENTER)
+canvas.create_oval(int(w) / 2 - 220, int(h) / 2 - 220, int(w) / 2 + 220, int(h) / 2 + 220, fill="#27374D", outline="")
+speed_txt = canvas.create_text(int(w) / 2, int(h) / 2, font=Font(size=100, family="Ethnocentric Rg"), fill="#DDE6ED",
+                               text=speed.get(), anchor=tk.CENTER)
+img = tk.PhotoImage(file="img/temperature.gif")
+temperature_icon = canvas.create_image(3 * int(w) / 4, 50, anchor=tk.NE, image=img)
+temperature_txt = canvas.create_text(3 * int(w) / 4 + 150, 100, font=Font(size=50, family="Ethnocentric Rg"),
+                                     fill="#DDE6ED", text=temperature.get(), anchor=tk.CENTER)
 
 
-def on_change(varname, index, mode):
-    canvas.itemconfigure(txt, text=ui.getvar(varname))
+def on_speed_change(varname, i, m):
+    canvas.itemconfigure(speed_txt, text=ui.getvar(varname))
 
 
-speed.trace_variable('w', on_change)
+def on_temperature_change(varname, i, m):
+    canvas.itemconfigure(temperature_txt, text=ui.getvar(varname))
+
+
+speed.trace_variable('w', on_speed_change)
+temperature.trace_variable('w', on_temperature_change)
 
 
 def gear_img(todo):
-    p = tk.PhotoImage(file="image.gif")
-    canvas.create_image(0, 0, anchor=NW, image=p)
-    return
+    img_on_canvas = None
+    if todo is not None:
+        img = tk.PhotoImage(file=f"{todo}.gif")
+        img_on_canvas = canvas.create_image(int(w) / 2 + 200, int(h) / 2 - 150, anchor=tk.NW, image=img)
+    global GEAR_IMG
+    if GEAR_IMG is not None:
+        sleep(0.3)
+        canvas.delete(GEAR_IMG)
+    GEAR_IMG = img_on_canvas
 
 
 def redo_rpm_arc(rpm):
     rpm_to_scale = rpm * 0.0075
-    right = canvas.create_arc(int(w) / 2 - 150, int(h) / 2 - 150, int(w) / 2 + 150, int(h) / 2 + 150, style=tk.ARC,
-                             extent=str(rpm_to_scale), start=str(210 - rpm_to_scale), width=20)
-    left = canvas.create_arc(int(w) / 2 - 150, int(h) / 2 - 150, int(w) / 2 + 150, int(h) / 2 + 150, style=tk.ARC,
-                              extent=str(rpm_to_scale), start=330, width=20)
+    right = canvas.create_arc(int(w) / 2 - 230, int(h) / 2 - 230, int(w) / 2 + 230, int(h) / 2 + 230, style=tk.ARC,
+                              extent=str(rpm_to_scale), start=str(210 - rpm_to_scale), width=20, outline="#DDE6ED")
+    left = canvas.create_arc(int(w) / 2 - 230, int(h) / 2 - 230, int(w) / 2 + 230, int(h) / 2 + 230, style=tk.ARC,
+                             extent=str(rpm_to_scale), start=330, width=20, outline="#DDE6ED")
     global RPM_INDICATOR
     if None not in RPM_INDICATOR:
         canvas.delete(RPM_INDICATOR[0])
         canvas.delete(RPM_INDICATOR[1])
     RPM_INDICATOR = [left, right]
 
-
-"""speed_frame = tk.Frame(ui, bg="black")
-speed_frame.pack(expand=True)
-speed_label = tk.Label(speed_frame, textvariable=speed, font=Font(size=100), fg="white", bg="black")
-speed_unit_label = tk.Label(speed_frame, text="km/h", font=Font(size=40), fg="white", bg="black")
-speed_label.pack()
-speed_unit_label.pack()"""
 
 if mode == dashboard.REPLAY:
     Thread(target=trip_loop).start()
