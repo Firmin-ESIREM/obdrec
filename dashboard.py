@@ -13,6 +13,7 @@ ui.attributes("-fullscreen", True)
 ui.configure(bg="black", cursor="none")
 speed = tk.StringVar(ui, '0')
 temperature = tk.StringVar(ui, '0°C')
+date_time = tk.StringVar(ui, datetime.now().strftime("%d/%m/%Y\n%H:%M"))
 RPM_INDICATOR = [None, None]
 GEAR_IMG = None
 
@@ -64,6 +65,7 @@ def gear_change(old_speed, new_speed, time_diff, rpm, combustion):
 
 def trip_loop():
     sp1, sp2, sp3, sp4 = None, None, None, None
+    Thread(target=set_date_time).start()
     with open(argv[2], 'r') as f:
         lines = f.readlines()
 
@@ -75,7 +77,7 @@ def trip_loop():
         trip_beginning = float(list(reader([lines[1]], delimiter=';'))[0][0])
         for line in lines[1:]:
             parsed_line = list(reader([line], delimiter=';'))[0]
-            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds() * 4:
+            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds():
                 pass
             sp4 = sp3
             sp3 = sp2
@@ -97,10 +99,12 @@ w = ui.winfo_screenwidth()
 canvas.create_oval(int(w) / 2 - 220, int(h) / 2 - 220, int(w) / 2 + 220, int(h) / 2 + 220, fill="#27374D", outline="")
 speed_txt = canvas.create_text(int(w) / 2, int(h) / 2, font=Font(size=100, family="Ethnocentric Rg"), fill="#DDE6ED",
                                text=speed.get(), anchor=tk.CENTER)
-img = tk.PhotoImage(file="img/temperature.gif")
-temperature_icon = canvas.create_image(3 * int(w) / 4, 50, anchor=tk.NE, image=img)
-temperature_txt = canvas.create_text(3 * int(w) / 4 + 150, 100, font=Font(size=50, family="Ethnocentric Rg"),
+temp_img = tk.PhotoImage(file="img/temperature.gif")
+temperature_icon = canvas.create_image(3 * int(w) / 4, 50, anchor=tk.NE, image=temp_img)
+temperature_txt = canvas.create_text(3 * int(w) / 4 + 130, 90, font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
                                      fill="#DDE6ED", text=temperature.get(), anchor=tk.CENTER)
+date_time_txt = canvas.create_text(50, int(h) - 150, font=Font(size=30, family="MADE INFINITY PERSONAL USE"), fill="#DDE6ED",
+                                   text=date_time.get(), anchor=tk.NW)
 
 
 def on_speed_change(varname, i, m):
@@ -111,15 +115,20 @@ def on_temperature_change(varname, i, m):
     canvas.itemconfigure(temperature_txt, text=ui.getvar(varname))
 
 
+def on_date_time_change(varname, i, m):
+    canvas.itemconfigure(date_time_txt, text=ui.getvar(varname))
+
+
 speed.trace_variable('w', on_speed_change)
 temperature.trace_variable('w', on_temperature_change)
+date_time.trace_variable('w', on_date_time_change)
 
 
 def gear_img(todo):
     img_on_canvas = None
     if todo is not None:
-        img = tk.PhotoImage(file=f"{todo}.gif")
-        img_on_canvas = canvas.create_image(int(w) / 2 + 200, int(h) / 2 - 150, anchor=tk.NW, image=img)
+        shift_img = tk.PhotoImage(file=f"{todo}.gif")
+        shift_img_on_canvas = canvas.create_image(int(w) / 2 + 200, int(h) / 2 - 150, anchor=tk.NW, image=shift_img)
     global GEAR_IMG
     if GEAR_IMG is not None:
         sleep(0.3)
@@ -138,6 +147,12 @@ def redo_rpm_arc(rpm):
         canvas.delete(RPM_INDICATOR[0])
         canvas.delete(RPM_INDICATOR[1])
     RPM_INDICATOR = [left, right]
+
+
+def set_date_time():
+    while True:
+        date_time.set(datetime.now().strftime("%d/%m/%Y\n%H:%M"))
+        sleep(5)
 
 
 if mode == dashboard.REPLAY:
