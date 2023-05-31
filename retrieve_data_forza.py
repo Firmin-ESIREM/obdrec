@@ -10,7 +10,7 @@ from werkzeug.exceptions import NotFound
 SERVER_SOCKET = None
 
 
-def forza_server_init(ip: str, port: int):
+def forza_server_init(ip: str, port: int) -> None:
     global SERVER_SOCKET
     SERVER_SOCKET = socket(AF_INET, SOCK_DGRAM)
     SERVER_SOCKET.bind((ip, port))  # IP and Port of the receiver
@@ -51,7 +51,7 @@ DATA = {
 }
 
 
-def decoded_data(data: str) -> dict:  #inspired by https://github.com/nikidziuba/Forza_horizon_data_out_python/tree/main
+def decoded_data(data: str) -> dict[str, int]:  #inspired by https://github.com/nikidziuba/Forza_horizon_data_out_python/tree/main
     data_decoded = {}
     # additional var
     passed_data = data
@@ -86,7 +86,7 @@ def decoded_data(data: str) -> dict:  #inspired by https://github.com/nikidziuba
     return data_decoded
 
 
-def retrieve_data():
+def retrieve_data() -> None:
     ip = input("Enter the IP address you specify on Forza Horizon EX : 0.0.0.0: ")
     port = int(input("Enter the port number you specify on Forza Horizon: "))
     forza_server_init(ip, port)

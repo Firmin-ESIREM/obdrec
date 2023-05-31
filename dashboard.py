@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter.font import Font
 from threading import Thread
 from time import sleep
+from typing import Union
 
 ui = tk.Tk(className="Dashboard")
 ui.attributes("-fullscreen", True)
@@ -43,7 +44,7 @@ if argv[1] == "replay" and len(argv) == 3:
 csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 
 
-def gear_change(old_speed, new_speed, time_diff, rpm, combustion):
+def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, combustion: str) -> Union[str, None]:
     acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
     rpm_limit = [0, 0, 0, 0]
     if combustion == "E":  # rpm limit for petrol motorisation
@@ -63,7 +64,7 @@ def gear_change(old_speed, new_speed, time_diff, rpm, combustion):
     return None
 
 
-def trip_loop():
+def trip_loop() -> None:
     sp1, sp2, sp3, sp4 = None, None, None, None
     Thread(target=set_date_time).start()
     with open(argv[2], 'r') as f:
@@ -107,15 +108,15 @@ date_time_txt = canvas.create_text(50, int(h) - 150, font=Font(size=30, family="
                                    text=date_time.get(), anchor=tk.NW)
 
 
-def on_speed_change(varname, i, m):
+def on_speed_change(varname, i, m) -> None:
     canvas.itemconfigure(speed_txt, text=ui.getvar(varname))
 
 
-def on_temperature_change(varname, i, m):
+def on_temperature_change(varname, i, m) -> None:
     canvas.itemconfigure(temperature_txt, text=ui.getvar(varname))
 
 
-def on_date_time_change(varname, i, m):
+def on_date_time_change(varname, i, m) -> None:
     canvas.itemconfigure(date_time_txt, text=ui.getvar(varname))
 
 
@@ -124,7 +125,7 @@ temperature.trace_variable('w', on_temperature_change)
 date_time.trace_variable('w', on_date_time_change)
 
 
-def gear_img(todo):
+def gear_img(todo: Union[str, None]) -> None:
     img_on_canvas = None
     if todo is not None:
         shift_img = tk.PhotoImage(file=f"{todo}.gif")
@@ -136,7 +137,7 @@ def gear_img(todo):
     GEAR_IMG = img_on_canvas
 
 
-def redo_rpm_arc(rpm):
+def redo_rpm_arc(rpm: int) -> None:
     rpm_to_scale = rpm * 0.0075
     right = canvas.create_arc(int(w) / 2 - 230, int(h) / 2 - 230, int(w) / 2 + 230, int(h) / 2 + 230, style=tk.ARC,
                               extent=str(rpm_to_scale), start=str(210 - rpm_to_scale), width=20, outline="#DDE6ED")
@@ -149,7 +150,7 @@ def redo_rpm_arc(rpm):
     RPM_INDICATOR = [left, right]
 
 
-def set_date_time():
+def set_date_time() -> None:
     while True:
         date_time.set(datetime.now().strftime("%d/%m/%Y\n%H:%M"))
         sleep(5)

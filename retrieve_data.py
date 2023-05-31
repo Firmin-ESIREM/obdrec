@@ -32,7 +32,7 @@ def get_data() -> Response:
     return data_json
 
 
-def pull_data():
+def pull_data() -> None:
     while True:
         cmd = commands.SPEED  # define command as SPEED
         speed = connection.query(cmd)  # send the command
