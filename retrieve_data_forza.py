@@ -1,11 +1,20 @@
 import struct
 from socket import socket, SOCK_DGRAM, AF_INET
 from threading import Thread
-
+from flask import request, Response
+import flask_app
+from json import dumps, loads
+from werkzeug.exceptions import NotFound
 
 # creat UDP server
-server_socket = socket(AF_INET, SOCK_DGRAM)
-server_socket.bind(('192.168.1.10', 5685))  # IP and Port of the receiver
+SERVER_SOCKET = None
+
+
+def forza_server_init(ip: str, port: int):
+    global SERVER_SOCKET
+    SERVER_SOCKET = socket(AF_INET, SOCK_DGRAM)
+    SERVER_SOCKET.bind((ip, port))  # IP and Port of the receiver
+
 
 # reading data and assigning names to data types in data_types dict
 data_types = {}
@@ -42,7 +51,7 @@ DATA = {
 }
 
 
-def decoded_data(data):  # inspired by https://github.com/nikidziuba/Forza_horizon_data_out_python/tree/main
+def decoded_data(data: str) -> dict:  #inspired by https://github.com/nikidziuba/Forza_horizon_data_out_python/tree/main
     data_decoded = {}
     # additional var
     passed_data = data
@@ -78,8 +87,11 @@ def decoded_data(data):  # inspired by https://github.com/nikidziuba/Forza_horiz
 
 
 def retrieve_data():
+    ip = input("Enter the IP address you specify on Forza Horizon EX : 0.0.0.0: ")
+    port = int(input("Enter the port number you specify on Forza Horizon: "))
+    forza_server_init(ip, port)
     while True:
-        data, addr = server_socket.recvfrom(1500)  # received data string
+        data, addr = SERVER_SOCKET.recvfrom(1500)  # received data string
         data_decoded = decoded_data(data)  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
@@ -94,6 +106,19 @@ def retrieve_data():
         DATA["Accel"] = data_decoded["Accel"]
         DATA["Brake"] = data_decoded["Brake"]
         DATA["Gear"] = data_decoded["Gear"]
+
+
+@flask_app.app.route('/get_data_forza/', methods=["POST"])
+def get_data() -> Response:
+    data_type = request.form.get('data_type_forza')
+    data_request = loads(data_type)
+    data_filtered = {}
+    for element in data_request:
+        if element not in DATA.keys():
+            raise NotFound
+        data_filtered[element] = DATA[element]
+    data_json = dumps(data_filtered)
+    return data_json
 
 
 Thread(target=retrieve_data()).start()

@@ -1,17 +1,16 @@
 from obd import OBD, commands
 from time import time
 from datetime import datetime
-from flask import Flask, request
+from flask import request, Response
 from threading import Thread
 from json import dumps, loads
 from werkzeug.exceptions import NotFound
+import flask_app
 
 connection = OBD()  # connect to OBD adapter
 travel_name = "travel_" + datetime.today().strftime('%Y%m%d_%H%M%S') + ".csv"
 with open(travel_name, 'a') as f:  # create csv file to log data from the travel
     f.write('time' + ';' + 'speed_kph' + ';' + 'rpm' + ';' + 'intake_temperature_degC' + '\n')
-
-app = Flask(__name__)
 
 DATA = {
     "speed": 0,
@@ -20,8 +19,8 @@ DATA = {
 }
 
 
-@app.route('/get_data/', methods=["POST"])  # post retrieve data for the dashboard
-def get_data():
+@flask_app.app.route('/get_data/', methods=["POST"])  # post retrieve data for the dashboard
+def get_data() -> Response:
     data_type = request.form.get('data_type')
     data_request = loads(data_type)
     data_filtered = {}
@@ -51,6 +50,3 @@ def pull_data():
 
 
 Thread(target=pull_data).start()
-
-if __name__ == "__main__":
-    app.run(port=1234)
