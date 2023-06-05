@@ -74,7 +74,7 @@ def live_trip():
 
 def recorded_trip_loop() -> None:
     sp1, sp2, sp3, sp4 = None, None, None, None
-    Thread(target=set_date_time).start()
+    # Thread(target=set_date_time).start()
     with open(argv[2], 'r') as f:
         lines = f.readlines()
 
@@ -99,6 +99,7 @@ def recorded_trip_loop() -> None:
                 gear_suggestion = gear_change(sp4[1], sp1[1], sp1[0] - sp4[0], round(float(parsed_line[2])), 'E')
                 print(gear_suggestion)
                 Thread(target=gear_img, args=(gear_suggestion,)).start()
+            date_time.set(datetime.fromtimestamp(round(float(parsed_line[0]))).strftime("%d/%m/%Y\n%H:%M"))
 
 
 canvas = tk.Canvas(ui, bg="#526D82", highlightthickness=0)
