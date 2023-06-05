@@ -64,7 +64,7 @@ def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, comb
     return None
 
 
-def trip_loop() -> None:
+def recorded_trip_loop() -> None:
     sp1, sp2, sp3, sp4 = None, None, None, None
     Thread(target=set_date_time).start()
     with open(argv[2], 'r') as f:
@@ -78,7 +78,7 @@ def trip_loop() -> None:
         trip_beginning = float(list(reader([lines[1]], delimiter=';'))[0][0])
         for line in lines[1:]:
             parsed_line = list(reader([line], delimiter=';'))[0]
-            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds():
+            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds() * 2:
                 pass
             sp4 = sp3
             sp3 = sp2
@@ -157,5 +157,5 @@ def set_date_time() -> None:
 
 
 if mode == dashboard.REPLAY:
-    Thread(target=trip_loop).start()
+    Thread(target=recorded_trip_loop).start()
     ui.mainloop()

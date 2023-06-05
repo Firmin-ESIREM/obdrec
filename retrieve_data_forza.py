@@ -51,7 +51,7 @@ DATA = {
 }
 
 
-def decoded_data(data: str) -> dict[str, int]:  #inspired by https://github.com/nikidziuba/Forza_horizon_data_out_python/tree/main
+def decoded_data(data: str) -> dict[str, int]:  # inspired by https://github.com/nikidziuba/Forza_horizon_data_out_python/tree/main
     data_decoded = {}
     # additional var
     passed_data = data
