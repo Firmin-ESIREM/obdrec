@@ -11,7 +11,7 @@ connection = OBD()  # connect to OBD adapter
 
 
 def car_on(rpm: int) -> bool:
-    return rpm != 0
+    return rpm != 0 and rpm is not None
 
 
 DATA = {

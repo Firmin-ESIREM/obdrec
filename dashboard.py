@@ -1,3 +1,4 @@
+from json import dumps, loads
 from sys import argv, stderr, exit as sys_exit
 import dashboard
 from os import path
@@ -8,6 +9,7 @@ from tkinter.font import Font
 from threading import Thread
 from time import sleep
 from typing import Union
+from requests import post
 
 ui = tk.Tk(className="Dashboard")
 ui.attributes("-fullscreen", True)
@@ -29,7 +31,6 @@ if len(argv) not in [2, 3] \
         "Usage : $PYTHON_INTERPRETER dashboard.py <live|replay> [path_to_replay_file]",
         file=stderr
     )
-    print(len(argv))
     sys_exit(1)
 
 if argv[1] == "replay" and len(argv) == 3:
@@ -62,6 +63,13 @@ def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, comb
         if acceleration > 2 and rpm > rpm_limit[3]:
             return "up"
     return None
+
+
+def live_trip():
+    data_type = dumps(["speed", "rpm", "intake_temp"])
+    form_data = {'data_type': data_type}
+    data_json = post('http://localhost:3333/get_data/', data=form_data)
+    data = loads(data_json.text)
 
 
 def recorded_trip_loop() -> None:
@@ -158,4 +166,8 @@ def set_date_time() -> None:
 
 if mode == dashboard.REPLAY:
     Thread(target=recorded_trip_loop).start()
+    ui.mainloop()
+
+if mode == dashboard.LIVE:
+    Thread(target=live_trip).start()
     ui.mainloop()
