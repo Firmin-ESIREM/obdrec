@@ -92,7 +92,6 @@ def live_trip() -> None:
 
 def recorded_trip_loop() -> None:
     sp1, sp2, sp3, sp4 = None, None, None, None
-    # Thread(target=set_date_time).start()
     with open(argv[2], 'r') as f:
         lines = f.readlines()
 
