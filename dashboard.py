@@ -7,9 +7,11 @@ from csv import reader
 import tkinter as tk
 from tkinter.font import Font
 from threading import Thread
-from time import sleep
+from time import sleep, time
 from typing import Union
 from requests import post
+from requests.exceptions import ConnectionError
+
 
 ui = tk.Tk(className="Dashboard")
 ui.attributes("-fullscreen", True)
@@ -65,11 +67,27 @@ def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, comb
     return None
 
 
-def live_trip():
+def live_trip() -> None:
     data_type = dumps(["speed", "rpm", "intake_temp"])
     form_data = {'data_type': data_type}
-    data_json = post('http://localhost:3333/get_data/', data=form_data)
-    data = loads(data_json.text)
+    sp1, sp2, sp3, sp4 = None, None, None, None
+    Thread(target=set_date_time).start()
+    while True:
+        try:
+            data_json = post('http://localhost:3333/get_data/', data=form_data)
+            data = loads(data_json.text)
+            sp4 = sp3
+            sp3 = sp2
+            sp2 = sp1
+            sp1 = [data["speed"], time()]
+            speed.set(str(data["speed"]))
+            temperature.set(str(data["intake_temp"]) + "°C")
+            Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
+            if all((sp1, sp2, sp3, sp4)):
+                gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
+                Thread(target=gear_img, args=(gear_suggestion,)).start()
+        except ConnectionError:
+            print("Server not found")
 
 
 def recorded_trip_loop() -> None:
@@ -97,7 +115,6 @@ def recorded_trip_loop() -> None:
             Thread(target=redo_rpm_arc, args=(round(float(parsed_line[2])),)).start()
             if all((sp1, sp2, sp3, sp4)):
                 gear_suggestion = gear_change(sp4[1], sp1[1], sp1[0] - sp4[0], round(float(parsed_line[2])), 'E')
-                print(gear_suggestion)
                 Thread(target=gear_img, args=(gear_suggestion,)).start()
             date_time.set(datetime.fromtimestamp(round(float(parsed_line[0]))).strftime("%d/%m/%Y\n%H:%M"))
 
