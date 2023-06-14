@@ -1,19 +1,8 @@
 import struct
 from socket import socket, SOCK_DGRAM, AF_INET
 from threading import Thread
-from flask import request, Response
-import flask_app
-from json import dumps, loads
-from werkzeug.exceptions import NotFound
-
-# creat UDP server
-SERVER_SOCKET = None
-
-
-def forza_server_init(ip: str, port: int) -> None:
-    global SERVER_SOCKET
-    SERVER_SOCKET = socket(AF_INET, SOCK_DGRAM)
-    SERVER_SOCKET.bind((ip, port))  # IP and Port of the receiver
+from udp_server import send_udp, receive_forza_data
+from json import dumps
 
 
 # reading data and assigning names to data types in data_types dict
@@ -90,10 +79,8 @@ def decoded_data(data: str) -> dict[str, int]:
 def retrieve_data() -> None:
     ip = input("Enter the IP address you specify on Forza Horizon EX : 0.0.0.0: ")
     port = int(input("Enter the port number you specify on Forza Horizon: "))
-    forza_server_init(ip, port)
     while True:
-        data, addr = SERVER_SOCKET.recvfrom(1500)  # received data string
-        data_decoded = decoded_data(data)  # decoded data
+        data_decoded = decoded_data(receive_forza_data(port, ip))  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
         DATA["CurrentEngineRpm"] = data_decoded["CurrentEngineRpm"]
@@ -107,19 +94,8 @@ def retrieve_data() -> None:
         DATA["Accel"] = data_decoded["Accel"]
         DATA["Brake"] = data_decoded["Brake"]
         DATA["Gear"] = data_decoded["Gear"]
-
-
-@flask_app.app.route('/get_data_forza/', methods=["POST"])
-def get_data() -> Response:
-    data_type = request.form.get('data_type_forza')
-    data_request = loads(data_type)
-    data_filtered = {}
-    for element in data_request:
-        if element not in DATA.keys():
-            raise NotFound
-        data_filtered[element] = DATA[element]
-    data_json = dumps(data_filtered)
-    return data_json
+        data_json = dumps(DATA)
+        send_udp(data_json)
 
 
 Thread(target=retrieve_data()).start()
