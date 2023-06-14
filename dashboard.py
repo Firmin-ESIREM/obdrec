@@ -91,7 +91,7 @@ def live_trip() -> None:
 
 
 def recorded_trip_loop() -> None:
-    sp1, sp2, sp3, sp4 = None, None, None, None
+    sp1, sp2, sp3, sp4, gear_suggestion_before = None, None, None, None, None
     with open(argv[2], 'r') as f:
         lines = f.readlines()
 
@@ -103,7 +103,7 @@ def recorded_trip_loop() -> None:
         trip_beginning = float(list(reader([lines[1]], delimiter=';'))[0][0])
         for line in lines[1:]:
             parsed_line = list(reader([line], delimiter=';'))[0]
-            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds() * 2:
+            while float(parsed_line[0]) - trip_beginning > (datetime.now() - start_time).total_seconds():
                 pass
             sp4 = sp3
             sp3 = sp2
@@ -114,7 +114,11 @@ def recorded_trip_loop() -> None:
             Thread(target=redo_rpm_arc, args=(round(float(parsed_line[2])),)).start()
             if all((sp1, sp2, sp3, sp4)):
                 gear_suggestion = gear_change(sp4[1], sp1[1], sp1[0] - sp4[0], round(float(parsed_line[2])), 'E')
-                Thread(target=gear_img, args=(gear_suggestion,)).start()
+                print(gear_suggestion)
+                if gear_suggestion != gear_suggestion_before:
+                    #Thread(target=gear_img, args=(gear_suggestion,)).start()
+                    gear_img(gear_suggestion)
+                    gear_suggestion_before = gear_suggestion
             date_time.set(datetime.fromtimestamp(round(float(parsed_line[0]))).strftime("%d/%m/%Y\n%H:%M"))
 
 
@@ -129,8 +133,8 @@ temp_img = tk.PhotoImage(file="img/temperature.gif")
 temperature_icon = canvas.create_image(3 * int(w) / 4, 50, anchor=tk.NE, image=temp_img)
 temperature_txt = canvas.create_text(3 * int(w) / 4 + 130, 90, font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
                                      fill="#DDE6ED", text=temperature.get(), anchor=tk.CENTER)
-date_time_txt = canvas.create_text(50, int(h) - 150, font=Font(size=30, family="MADE INFINITY PERSONAL USE"), fill="#DDE6ED",
-                                   text=date_time.get(), anchor=tk.NW)
+date_time_txt = canvas.create_text(50, int(h) - 150, font=Font(size=30, family="MADE INFINITY PERSONAL USE"),
+                                   fill="#DDE6ED", text=date_time.get(), anchor=tk.NW)
 
 
 def on_speed_change(varname, i, m) -> None:
@@ -148,18 +152,24 @@ def on_date_time_change(varname, i, m) -> None:
 speed.trace_variable('w', on_speed_change)
 temperature.trace_variable('w', on_temperature_change)
 date_time.trace_variable('w', on_date_time_change)
+todo_text = {
+    "up": "↑",
+    "down": "↓"
+}
 
 
 def gear_img(todo: Union[str, None]) -> None:
-    img_on_canvas = None
+    shift_img_on_canvas = None
     if todo is not None:
-        shift_img = tk.PhotoImage(file=f"{todo}.gif")
-        shift_img_on_canvas = canvas.create_image(int(w) / 2 + 200, int(h) / 2 - 150, anchor=tk.NW, image=shift_img)
+        #shift_img = tk.PhotoImage(file=f"img/{todo}.gif")
+        #shift_img_on_canvas = canvas.create_image(int(w) / 2 + 200, int(h) / 2 - 150, anchor=tk.NW, image=shift_img)
+        shift_img_on_canvas = canvas.create_text(int(w) / 2 + 250, int(h) / 2 - 200,
+                                                 font=Font(size=100, family="Arial", weight="bold"), fill="#DDE6ED",
+                                                 text=f"{todo_text[todo]}", anchor=tk.CENTER)
     global GEAR_IMG
     if GEAR_IMG is not None:
-        sleep(0.3)
         canvas.delete(GEAR_IMG)
-    GEAR_IMG = img_on_canvas
+    GEAR_IMG = shift_img_on_canvas
 
 
 def redo_rpm_arc(rpm: int) -> None:

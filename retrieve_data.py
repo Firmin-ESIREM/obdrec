@@ -3,6 +3,8 @@ from time import time
 from datetime import datetime
 from threading import Thread
 from json import dumps
+
+import flask_app
 from udp_server import send_udp
 
 connection = OBD()  # connect to OBD adapter
