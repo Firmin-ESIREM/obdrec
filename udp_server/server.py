@@ -3,15 +3,15 @@ from socket import socket, SOCK_DGRAM, AF_INET
 
 def retrieve_udp():
     retrieve_server = socket(AF_INET, SOCK_DGRAM)
-    retrieve_server.bind(("127.0.0.1", 1234))
-    message, address = retrieve_server.rcvfrom(1500)
+    retrieve_server.bind(("127.0.0.1", 5678))
+    message, address = retrieve_server.recvfrom(1500)
     return message
 
 
 def send_udp(data):
     send_server = socket(AF_INET, SOCK_DGRAM)
     send_server.bind(("127.0.0.1", 1234))
-    address = ("127.0.0.1", 1234)
+    address = ("127.0.0.1", 5678)
     send_server.sendto(data, address)
 
 

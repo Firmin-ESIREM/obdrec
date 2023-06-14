@@ -1,5 +1,4 @@
 import struct
-from socket import socket, SOCK_DGRAM, AF_INET
 from threading import Thread
 from udp_server import send_udp, receive_forza_data
 from json import dumps

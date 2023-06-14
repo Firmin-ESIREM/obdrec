@@ -1,4 +1,4 @@
-from json import dumps, loads
+from json import loads
 from sys import argv, stderr, exit as sys_exit
 import dashboard
 from os import path
@@ -9,8 +9,7 @@ from tkinter.font import Font
 from threading import Thread
 from time import sleep, time
 from typing import Union
-from requests import post
-from requests.exceptions import ConnectionError
+from udp_server import retrieve_udp
 
 
 ui = tk.Tk(className="Dashboard")
@@ -68,26 +67,20 @@ def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, comb
 
 
 def live_trip() -> None:
-    data_type = dumps(["speed", "rpm", "intake_temp"])
-    form_data = {'data_type': data_type}
     sp1, sp2, sp3, sp4 = None, None, None, None
     Thread(target=set_date_time).start()
     while True:
-        try:
-            data_json = post('http://localhost:3333/get_data/', data=form_data)
-            data = loads(data_json.text)
-            sp4 = sp3
-            sp3 = sp2
-            sp2 = sp1
-            sp1 = [data["speed"], time()]
-            speed.set(str(data["speed"]))
-            temperature.set(str(data["intake_temp"]) + "°C")
-            Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
-            if all((sp1, sp2, sp3, sp4)):
-                gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
-                Thread(target=gear_img, args=(gear_suggestion,)).start()
-        except ConnectionError:
-            print("Server not found")
+        data = loads(retrieve_udp())
+        sp4 = sp3
+        sp3 = sp2
+        sp2 = sp1
+        sp1 = [data["speed"], time()]
+        speed.set(str(data["speed"]))
+        temperature.set(str(data["intake_temp"]) + "°C")
+        Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
+        if all((sp1, sp2, sp3, sp4)):
+            gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
+            Thread(target=gear_img, args=(gear_suggestion,)).start()
 
 
 def recorded_trip_loop() -> None:
