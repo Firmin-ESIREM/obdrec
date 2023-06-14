@@ -76,10 +76,9 @@ def decoded_data(data: str) -> dict[str, int]:
 
 
 def retrieve_data() -> None:
-    ip = input("Enter the IP address you specify on Forza Horizon EX : 0.0.0.0: ")
-    port = int(input("Enter the port number you specify on Forza Horizon: "))
     while True:
-        data_decoded = decoded_data(receive_forza_data(port, ip))  # decoded data
+        receive_data = receive_forza_data(7300, "192.168.1.10")
+        data_decoded = decoded_data(receive_data)  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
         DATA["CurrentEngineRpm"] = data_decoded["CurrentEngineRpm"]

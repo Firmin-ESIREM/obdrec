@@ -13,10 +13,10 @@ def send_udp(data: str):
     send_server = socket(AF_INET, SOCK_DGRAM)
     send_server.bind(("127.0.0.1", 1234))
     address = ("127.0.0.1", 5678)
-    send_server.sendto(data, address)
+    send_server.sendto(data_encoded, address)
 
 
-def receive_forza_data(port: int, ip: str = "0.0.0.0") -> bytes:
+def receive_forza_data(port: int, ip: str) -> bytes:
     forza_server = socket(AF_INET, SOCK_DGRAM)
     forza_server.bind((ip, port))
     message, address = forza_server.recvfrom(1500)
