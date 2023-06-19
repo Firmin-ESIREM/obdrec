@@ -78,19 +78,12 @@ def live_trip() -> None:
         sp4 = sp3
         sp3 = sp2
         sp2 = sp1
-<<<<<<< HEAD
-        sp1 = [data["Speed"], time()]
-        speed.set(str(round(data["Speed"])))
-        #temperature.set(str(data["intake_temp"]) + "°C")
-        Thread(target=redo_rpm_arc, args=(data["CurrentEngineRpm"],)).start()
-=======
         sp1 = [data["speed"], time()]
         speed.set(str(round(data["speed"])))
         #temperature.set(str(data["intake_temp"]) + "°C")
         Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
->>>>>>> ff406aae40fac1e72b38e850e272fc753012e5ce
         if all((sp1, sp2, sp3, sp4)):
-            gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["CurrentEngineRpm"], 'E')
+            gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
             Thread(target=gear_img, args=(gear_suggestion,)).start()
 
 
