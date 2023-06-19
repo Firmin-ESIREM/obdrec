@@ -27,8 +27,6 @@ DATA = {
     "EngineMaxRpm": 0,
     "CurrentEngineRpm": 0,
     "Speed": 0,
-    "Fuel": 0,
-    "DistanceTraveled": 0,
     "BestLap": 0,
     "CurrentLap": 0,
     "LapNumber": 0,
@@ -40,7 +38,7 @@ DATA = {
 
 
 # inspired by https://github.com/nikidziuba/Forza_horizon_data_out_python/tree/main
-def decoded_data(data: str) -> dict[str, int]:
+def decoded_data(data: bytes) -> dict[str, int]:
     data_decoded = {}
     # additional var
     passed_data = data
@@ -76,16 +74,14 @@ def decoded_data(data: str) -> dict[str, int]:
 
 
 def retrieve_data() -> None:
-    ip = input("Enter the IP address you specify on Forza Horizon EX : 0.0.0.0: ")
-    port = int(input("Enter the port number you specify on Forza Horizon: "))
+
     while True:
-        data_decoded = decoded_data(receive_forza_data(port, ip))  # decoded data
+        receive_data = receive_forza_data(port, ip)
+        data_decoded = decoded_data(receive_data)  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
         DATA["CurrentEngineRpm"] = data_decoded["CurrentEngineRpm"]
-        DATA["Speed"] = data_decoded["Speed"]
-        DATA["Fuel"] = data_decoded["Fuel"]
-        DATA["DistanceTraveled"] = data_decoded["DistanceTraveled"]
+        DATA["Speed"] = data_decoded["Speed"] * 3.6
         DATA["BestLap"] = data_decoded["BestLap"]
         DATA["CurrentLap"] = data_decoded["CurrentLap"]
         DATA["LapNumber"] = data_decoded["LapNumber"]
