@@ -75,7 +75,7 @@ def live_trip() -> None:
         sp3 = sp2
         sp2 = sp1
         sp1 = [data["speed"], time()]
-        speed.set(str(data["speed"]))
+        speed.set(str(round(data["speed"])))
         temperature.set(str(data["intake_temp"]) + "°C")
         Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
         if all((sp1, sp2, sp3, sp4)):

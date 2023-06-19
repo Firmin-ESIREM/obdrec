@@ -41,7 +41,7 @@ def pull_data() -> None:
                     ft.write(str(time()) + ';' + str(speed.value.m) + ';' + str(rpm.value.m) + ';'
                              + str(intake_temperature.value.m) + '\n')
                 print(str(time()) + " : new record")
-                data_json = dumps(DATA)
+                data_json = dumps(DATA).encode("utf-8")
                 send_udp(data_json)
 
 

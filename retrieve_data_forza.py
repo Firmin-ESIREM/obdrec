@@ -99,7 +99,6 @@ def retrieve_data() -> None:
         DATA["Gear"] = data_decoded["Gear"]
         data_json = dumps(DATA)
         send_udp(data_json)
-        print(DATA)
 
 
 
