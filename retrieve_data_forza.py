@@ -77,7 +77,7 @@ def decoded_data(data: str) -> dict[str, int]:
 
 def retrieve_data() -> None:
     while True:
-        receive_data = receive_forza_data(7300, "192.168.1.10")
+        receive_data = receive_forza_data(5300, "192.168.236.53")
         data_decoded = decoded_data(receive_data)  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
