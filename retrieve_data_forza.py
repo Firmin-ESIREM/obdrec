@@ -2,6 +2,7 @@ import struct
 from threading import Thread
 from udp_server import send_udp, receive_forza_data
 from json import dumps
+from time import time
 
 
 # reading data and assigning names to data types in data_types dict
@@ -73,10 +74,17 @@ def decoded_data(data: bytes) -> dict[str, int]:
     return data_decoded
 
 
+LAST_RECEIVED = time()
+
+
 def retrieve_data() -> None:
 
     while True:
-        receive_data = receive_forza_data(port, ip)
+        global LAST_RECEIVED
+        receive_data = receive_forza_data(7300, "192.168.236.106")
+        if (time() - LAST_RECEIVED) < 0.2:
+            continue
+        LAST_RECEIVED = time()
         data_decoded = decoded_data(receive_data)  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
@@ -91,6 +99,8 @@ def retrieve_data() -> None:
         DATA["Gear"] = data_decoded["Gear"]
         data_json = dumps(DATA)
         send_udp(data_json)
+        print(DATA)
+
 
 
 Thread(target=retrieve_data()).start()
