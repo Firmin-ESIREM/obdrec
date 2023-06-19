@@ -2,6 +2,7 @@ import struct
 from threading import Thread
 from udp_server import send_udp, receive_forza_data
 from json import dumps
+from time import time
 
 
 # reading data and assigning names to data types in data_types dict
@@ -25,10 +26,8 @@ jumps = {
 DATA = {
     "IsRaceOn": 0,
     "EngineMaxRpm": 0,
-    "CurrentEngineRpm": 0,
-    "Speed": 0,
-    "Fuel": 0,
-    "DistanceTraveled": 0,
+    "rpm": 0,
+    "speed": 0,
     "BestLap": 0,
     "CurrentLap": 0,
     "LapNumber": 0,
@@ -40,7 +39,7 @@ DATA = {
 
 
 # inspired by https://github.com/nikidziuba/Forza_horizon_data_out_python/tree/main
-def decoded_data(data: str) -> dict[str, int]:
+def decoded_data(data: bytes) -> dict[str, int]:
     data_decoded = {}
     # additional var
     passed_data = data
@@ -75,16 +74,22 @@ def decoded_data(data: str) -> dict[str, int]:
     return data_decoded
 
 
+LAST_RECEIVED = time()
+
+
 def retrieve_data() -> None:
+
     while True:
         receive_data = receive_forza_data(5300, "192.168.236.53")
+        global LAST_RECEIVED
+        if (time() - LAST_RECEIVED) < 0.2:
+            continue
+        LAST_RECEIVED = time()
         data_decoded = decoded_data(receive_data)  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
-        DATA["CurrentEngineRpm"] = data_decoded["CurrentEngineRpm"]
-        DATA["Speed"] = data_decoded["Speed"]
-        DATA["Fuel"] = data_decoded["Fuel"]
-        DATA["DistanceTraveled"] = data_decoded["DistanceTraveled"]
+        DATA["rpm"] = data_decoded["CurrentEngineRpm"]
+        DATA["speed"] = data_decoded["Speed"] * 3.6
         DATA["BestLap"] = data_decoded["BestLap"]
         DATA["CurrentLap"] = data_decoded["CurrentLap"]
         DATA["LapNumber"] = data_decoded["LapNumber"]
@@ -94,6 +99,7 @@ def retrieve_data() -> None:
         DATA["Gear"] = data_decoded["Gear"]
         data_json = dumps(DATA)
         send_udp(data_json)
+
 
 
 Thread(target=retrieve_data()).start()
