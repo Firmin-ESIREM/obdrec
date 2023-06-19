@@ -9,8 +9,7 @@ def retrieve_udp() -> str:
 
 
 def send_udp(data: str):
-    #data_encoded = data.encode("utf-8")
-    data_encoded = data
+    data_encoded = data.encode("utf-8")
     send_server = socket(AF_INET, SOCK_DGRAM)
     send_server.bind(("127.0.0.1", 1234))
     address = ("127.0.0.1", 5678)

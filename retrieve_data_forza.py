@@ -26,8 +26,8 @@ jumps = {
 DATA = {
     "IsRaceOn": 0,
     "EngineMaxRpm": 0,
-    "CurrentEngineRpm": 0,
-    "Speed": 0,
+    "rpm": 0,
+    "speed": 0,
     "BestLap": 0,
     "CurrentLap": 0,
     "LapNumber": 0,
@@ -80,17 +80,16 @@ LAST_RECEIVED = time()
 def retrieve_data() -> None:
 
     while True:
+        receive_data = receive_forza_data(5300, "192.168.236.53")
         global LAST_RECEIVED
-        receive_data = receive_forza_data(5300, "192.168.236.246")
         if (time() - LAST_RECEIVED) < 0.2:
             continue
         LAST_RECEIVED = time()
-        print('received sth')
         data_decoded = decoded_data(receive_data)  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
-        DATA["CurrentEngineRpm"] = data_decoded["CurrentEngineRpm"]
-        DATA["Speed"] = data_decoded["Speed"] * 3.6
+        DATA["rpm"] = data_decoded["CurrentEngineRpm"]
+        DATA["speed"] = data_decoded["Speed"] * 3.6
         DATA["BestLap"] = data_decoded["BestLap"]
         DATA["CurrentLap"] = data_decoded["CurrentLap"]
         DATA["LapNumber"] = data_decoded["LapNumber"]

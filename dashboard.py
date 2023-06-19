@@ -54,9 +54,9 @@ def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, comb
     acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
     rpm_limit = [0, 0, 0, 0]
     if combustion == "E":  # rpm limit for petrol motorisation
-        rpm_limit = [1000, 1700, 2700, 3500]
+        rpm_limit = [1300, 2000, 2700, 3500]
     elif combustion == "D":  # rpm limit for diesel motorisation
-        rpm_limit = [1000, 1700, 2700, 3500]
+        rpm_limit = [1300, 200, 2700, 3500]
     if 15 < new_speed < 90:
         if acceleration < -2 and rpm < rpm_limit[1]:
             return "down"
@@ -78,10 +78,17 @@ def live_trip() -> None:
         sp4 = sp3
         sp3 = sp2
         sp2 = sp1
+<<<<<<< HEAD
         sp1 = [data["Speed"], time()]
         speed.set(str(round(data["Speed"])))
         #temperature.set(str(data["intake_temp"]) + "°C")
         Thread(target=redo_rpm_arc, args=(data["CurrentEngineRpm"],)).start()
+=======
+        sp1 = [data["speed"], time()]
+        speed.set(str(round(data["speed"])))
+        #temperature.set(str(data["intake_temp"]) + "°C")
+        Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
+>>>>>>> ff406aae40fac1e72b38e850e272fc753012e5ce
         if all((sp1, sp2, sp3, sp4)):
             gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["CurrentEngineRpm"], 'E')
             Thread(target=gear_img, args=(gear_suggestion,)).start()
