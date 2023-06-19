@@ -5,3 +5,4 @@ class DashboardMode:
 
 LIVE = DashboardMode("live")
 REPLAY = DashboardMode("replay")
+FORZA = DashboardMode("forza")

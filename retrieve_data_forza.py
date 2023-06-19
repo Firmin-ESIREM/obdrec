@@ -81,10 +81,11 @@ def retrieve_data() -> None:
 
     while True:
         global LAST_RECEIVED
-        receive_data = receive_forza_data(7300, "192.168.236.106")
+        receive_data = receive_forza_data(5300, "192.168.236.246")
         if (time() - LAST_RECEIVED) < 0.2:
             continue
         LAST_RECEIVED = time()
+        print('received sth')
         data_decoded = decoded_data(receive_data)  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]

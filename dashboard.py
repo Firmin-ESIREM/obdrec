@@ -13,7 +13,7 @@ from udp_server import retrieve_udp
 
 
 ui = tk.Tk(className="Dashboard")
-ui.attributes("-fullscreen", True)
+#ui.attributes("-fullscreen", True)
 ui.configure(bg="black", cursor="none")
 speed = tk.StringVar(ui, '0')
 temperature = tk.StringVar(ui, '0°C')
@@ -26,6 +26,7 @@ mode = dashboard.LIVE
 if len(argv) not in [2, 3] \
         or (argv[1] == "replay" and len(argv) != 3) \
         or (argv[1] == "live" and len(argv) != 2) \
+        or (argv[1] == "forza" and len(argv) != 2) \
         or argv[1] not in ["live", "replay"]:
     print(
         "The arguments you specified are invalid.\n"
@@ -42,6 +43,9 @@ if argv[1] == "replay" and len(argv) == 3:
     if not (argv[2].endswith(".csv")):
         print("The file you provided does not seem to be a CSV file.", file=stderr)
         sys_exit(1)
+elif argv[1] == "forza":
+    mode = dashboard.FORZA
+
 
 csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 
@@ -74,12 +78,12 @@ def live_trip() -> None:
         sp4 = sp3
         sp3 = sp2
         sp2 = sp1
-        sp1 = [data["speed"], time()]
-        speed.set(str(round(data["speed"])))
-        temperature.set(str(data["intake_temp"]) + "°C")
-        Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
+        sp1 = [data["Speed"], time()]
+        speed.set(str(round(data["Speed"])))
+        #temperature.set(str(data["intake_temp"]) + "°C")
+        Thread(target=redo_rpm_arc, args=(data["CurrentEngineRpm"],)).start()
         if all((sp1, sp2, sp3, sp4)):
-            gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
+            gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["CurrentEngineRpm"], 'E')
             Thread(target=gear_img, args=(gear_suggestion,)).start()
 
 
