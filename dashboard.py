@@ -106,11 +106,11 @@ def live_trip() -> None:
         if "Brake" in elements:
             Thread(target=redo_braking_gauge, args=(data["Brake"],)).start()
         if "IsRaceOn" in elements and data["RacePosition"] != 0:
-            #
-            print(f"best lap{data['BestLap']}")
-            print(f"current lap{data['CurrentLap']}")
-            print(f"no lap{data['LapNumber']}")
-            print(f"race pos{data['RacePosition']}")
+            lap_time.set(f"Temps du tour : {data['CurrentLap']}")
+            position.set(f"Position : {data['RacePosition']}")
+        else:
+            lap_time.set("")
+            position.set("")
 
 
 
@@ -161,9 +161,9 @@ date_time_txt = canvas.create_text(50, int(h) - 150, font=Font(size=30, family="
                                    fill="#DDE6ED", text=date_time.get(), anchor=tk.NW)
 gear_txt = canvas.create_text(int(w) / 2, 0.75 * int(h), font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
                               fill="#DDE6ED", text=gear.get(), anchor=tk.CENTER)
-position_txt = canvas.create_text(80, 40, font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
+position_txt = canvas.create_text(80, 40, font=Font(size=30, family="MADE INFINITY PERSONAL USE"),
                               fill="#DDE6ED", text=position.get(), anchor=tk.NW)
-lap_time_txt = canvas.create_text(40, 40, font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
+lap_time_txt = canvas.create_text(40, 40, font=Font(size=30, family="MADE INFINITY PERSONAL USE"),
                               fill="#DDE6ED", text=lap_time.get(), anchor=tk.NW)
 
 
