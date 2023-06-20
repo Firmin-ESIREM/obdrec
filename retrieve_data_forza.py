@@ -103,9 +103,7 @@ def retrieve_data() -> None:
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
         DATA["rpm"] = data_decoded["CurrentEngineRpm"]
         DATA["speed"] = data_decoded["Speed"] * 3.6  # convert m/s to km/h
-        DATA["BestLap"] = data_decoded["BestLap"]
         DATA["CurrentLap"] = data_decoded["CurrentLap"]
-        DATA["LapNumber"] = data_decoded["LapNumber"]
         DATA["RacePosition"] = data_decoded["RacePosition"]
         DATA["Accel"] = data_decoded["Accel"]
         DATA["Brake"] = data_decoded["Brake"]
