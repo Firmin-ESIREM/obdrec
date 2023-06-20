@@ -183,6 +183,7 @@ def gear_img(todo: Union[str, None]) -> None:
 
 
 def redo_rpm_arc(rpm: int, max_rpm: int = 8000) -> None:
+    max_rpm = 1 if max_rpm == 0 else max_rpm
     rpm_to_scale = rpm * (60 / max_rpm)
     right = canvas.create_arc(int(w) / 2 - 230, int(h) / 2 - 230, int(w) / 2 + 230, int(h) / 2 + 230, style=tk.ARC,
                               extent=str(rpm_to_scale), start=str(210 - rpm_to_scale), width=20, outline="#DDE6ED")
