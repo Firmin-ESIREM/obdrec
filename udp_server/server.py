@@ -16,7 +16,7 @@ def send_udp(data: str):
     """
     Init a UDP socket to send data.
     :param data: data you need to send
-    :return: nothing
+    :return:
     """
     data_encoded = data.encode("utf-8")
     send_server = socket(AF_INET, SOCK_DGRAM)
