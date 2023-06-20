@@ -15,7 +15,7 @@ boîte noire.
 `live`.
 * À la fin du trajet, il suffit d’arrêter les programmes, le CSV sera automatiquement sauvegardé.
 
-### Rejouter un trajet en voiture
+### Rejouer un trajet en voiture
 Afin de rejouer un trajet, il suffit de lancer `dashboard.py` avec comme premier argument `replay` et en deuxième
 argument le chemin vers le fichier CSV enregistré.
 
