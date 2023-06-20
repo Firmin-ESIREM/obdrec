@@ -157,9 +157,14 @@ def on_date_time_change(varname, i, m) -> None:
     canvas.itemconfigure(date_time_txt, text=ui.getvar(varname))
 
 
+def on_gear_change(varname, i, m) -> None:
+    canvas.itemconfigure(gear_txt, text=ui.getvar(varname))
+
+
 speed.trace_variable('w', on_speed_change)
 temperature.trace_variable('w', on_temperature_change)
 date_time.trace_variable('w', on_date_time_change)
+gear.trace_variable('w', on_gear_change)
 todo_text = {
     "up": "↑",
     "down": "↓"
