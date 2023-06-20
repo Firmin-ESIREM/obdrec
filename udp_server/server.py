@@ -3,7 +3,7 @@ from socket import socket, SOCK_DGRAM, AF_INET
 
 def retrieve_udp() -> str:
     """
-    Init a UDP socket to receive data and return them.
+    Init a UDP socket to receive data and return it.
     :return: the message that was received
     """
     retrieve_server = socket(AF_INET, SOCK_DGRAM)
