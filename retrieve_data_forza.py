@@ -43,6 +43,11 @@ DATA = {
 
 # inspired by https://github.com/nikidziuba/Forza_horizon_data_out_python/tree/main
 def decoded_data(data: bytes) -> dict[str, int]:
+    """
+    Decode data from Forza.
+    :param data: encoded data
+    :return: a dictionary
+    """
     data_decoded = {}
     # additional var
     passed_data = data
@@ -81,6 +86,10 @@ LAST_RECEIVED = time()
 
 
 def retrieve_data() -> None:
+    """
+    Retrieve encoded data from Forza send them decoded with a UDP socket.
+    :return: Nothing
+    """
     global IP, PORT
 
     while True:

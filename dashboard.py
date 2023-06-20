@@ -13,7 +13,7 @@ from udp_server import retrieve_udp
 
 
 ui = tk.Tk(className="Dashboard")
-#ui.attributes("-fullscreen", True)
+ui.attributes("-fullscreen", True)
 ui.configure(bg="black", cursor="none")
 speed = tk.StringVar(ui, '0')
 temperature = tk.StringVar(ui, '0°C')
@@ -101,6 +101,8 @@ def live_trip() -> None:
                 Thread(target=gear_img, args=(gear_suggestion,)).start()
         if "Accel" in elements:
             Thread(target=redo_acceleration_gauge, args=(data["Accel"],)).start()
+        if "Brake" in elements:
+            Thread(target=redo_braking_gauge, args=(data["Brake"],)).start()
 
 
 def recorded_trip_loop() -> None:
@@ -207,15 +209,24 @@ def redo_rpm_arc(rpm: int, max_rpm: int = 8000) -> None:
 
 
 def draw_gauge(value: int, pos_x: int, pos_y: int, size_x: int, size_y: int):
-    return canvas.create_rectangle(pos_x, pos_y + size_y * (1 - (value / 255)), pos_x + size_x, pos_y + size_y, fill="#DDE6ED")
+    return canvas.create_rectangle(pos_x, pos_y + size_y * (1 - (value / 255)), pos_x + size_x, pos_y + size_y,
+                                   fill="#DDE6ED", outline="")
 
 
 def redo_acceleration_gauge(acceleration: int) -> None:
-    gauge = draw_gauge(acceleration, int(w) - 80, int(h) - 60, 15, 40)
+    gauge = draw_gauge(acceleration, int(w) - 80, int(h) - 100, 15, 70)
     global ACCELERATION_GAUGE
     if ACCELERATION_GAUGE is not None:
         canvas.delete(ACCELERATION_GAUGE)
     ACCELERATION_GAUGE = gauge
+
+
+def redo_braking_gauge(braking: int) -> None:
+    gauge = draw_gauge(braking, int(w) - 40, int(h) - 100, 15, 70)
+    global BRAKING_GAUGE
+    if BRAKING_GAUGE is not None:
+        canvas.delete(BRAKING_GAUGE)
+    BRAKING_GAUGE = gauge
 
 
 def set_date_time() -> None:
