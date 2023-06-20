@@ -18,6 +18,7 @@ ui.configure(bg="black", cursor="none")
 speed = tk.StringVar(ui, '0')
 temperature = tk.StringVar(ui, '0°C')
 date_time = tk.StringVar(ui, datetime.now().strftime("%d/%m/%Y\n%H:%M"))
+gear = tk.StringVar(ui, "")
 RPM_INDICATOR = [None, None]
 GEAR_IMG = None
 
@@ -56,7 +57,7 @@ def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, comb
     if combustion == "E":  # rpm limit for petrol motorisation
         rpm_limit = [1300, 2000, 2700, 3500]
     elif combustion == "D":  # rpm limit for diesel motorisation
-        rpm_limit = [1300, 200, 2700, 3500]
+        rpm_limit = [1300, 2000, 2700, 3500]
     if 15 < new_speed < 90:
         if acceleration < -2 and rpm < rpm_limit[1]:
             return "down"
@@ -75,16 +76,26 @@ def live_trip() -> None:
     Thread(target=set_date_time).start()
     while True:
         data = loads(retrieve_udp())
+        elements = data.keys()
         sp4 = sp3
         sp3 = sp2
         sp2 = sp1
         sp1 = [data["speed"], time()]
         speed.set(str(round(data["speed"])))
-        #temperature.set(str(data["intake_temp"]) + "°C")
-        Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
+        if "intake_temp" in elements:
+            temperature.set(str(data["intake_temp"]) + "°C")
+        else:
+            canvas.delete(temperature_icon)
+            canvas.delete(temperature_txt)
+        if "EngineMaxRpm" in elements:
+            Thread(target=redo_rpm_arc, args=(data["rpm"], int(data["EngineMaxRpm"]))).start()
+        else:
+            Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
         if all((sp1, sp2, sp3, sp4)):
             gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
             Thread(target=gear_img, args=(gear_suggestion,)).start()
+        if "Gear" in elements:
+            gear.set(data["Gear"])
 
 
 def recorded_trip_loop() -> None:
@@ -132,6 +143,8 @@ temperature_txt = canvas.create_text(3 * int(w) / 4 + 130, 90, font=Font(size=50
                                      fill="#DDE6ED", text=temperature.get(), anchor=tk.CENTER)
 date_time_txt = canvas.create_text(50, int(h) - 150, font=Font(size=30, family="MADE INFINITY PERSONAL USE"),
                                    fill="#DDE6ED", text=date_time.get(), anchor=tk.NW)
+gear_txt = canvas.create_text(int(w) / 2, 0.75 * int(h), font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
+                              fill="#DDE6ED", text=gear.get(), anchor=tk.CENTER)
 
 
 def on_speed_change(varname, i, m) -> None:
@@ -169,8 +182,8 @@ def gear_img(todo: Union[str, None]) -> None:
     GEAR_IMG = shift_img_on_canvas
 
 
-def redo_rpm_arc(rpm: int) -> None:
-    rpm_to_scale = rpm * 0.0075
+def redo_rpm_arc(rpm: int, max_rpm: int = 8000) -> None:
+    rpm_to_scale = rpm * (max_rpm / 60)
     right = canvas.create_arc(int(w) / 2 - 230, int(h) / 2 - 230, int(w) / 2 + 230, int(h) / 2 + 230, style=tk.ARC,
                               extent=str(rpm_to_scale), start=str(210 - rpm_to_scale), width=20, outline="#DDE6ED")
     left = canvas.create_arc(int(w) / 2 - 230, int(h) / 2 - 230, int(w) / 2 + 230, int(h) / 2 + 230, style=tk.ARC,

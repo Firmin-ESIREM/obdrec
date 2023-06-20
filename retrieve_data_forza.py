@@ -101,5 +101,4 @@ def retrieve_data() -> None:
         send_udp(data_json)
 
 
-
 Thread(target=retrieve_data()).start()
