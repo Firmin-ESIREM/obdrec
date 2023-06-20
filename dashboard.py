@@ -11,7 +11,6 @@ from time import sleep, time
 from typing import Union
 from udp_server import retrieve_udp
 
-
 ui = tk.Tk(className="Dashboard")
 ui.attributes("-fullscreen", True)
 ui.configure(bg="black", cursor="none")
@@ -48,11 +47,11 @@ if argv[1] == "replay" and len(argv) == 3:
         print("The file you provided does not seem to be a CSV file.", file=stderr)
         sys_exit(1)
 
-
 csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 
 
-def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, combustion: str, current_gear: str = None) -> Union[str, None]:
+def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, combustion: str,
+                current_gear: str = None) -> Union[str, None]:
     acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
     rpm_limit = [0, 0, 0, 0]
     if combustion == "E":  # rpm limit for petrol motorisation
@@ -119,7 +118,6 @@ def live_trip() -> None:
             position.set("")
 
 
-
 def recorded_trip_loop() -> None:
     sp1, sp2, sp3, sp4, gear_suggestion_before = None, None, None, None, None
     with open(argv[2], 'r') as f:
@@ -146,7 +144,7 @@ def recorded_trip_loop() -> None:
                 gear_suggestion = gear_change(sp4[1], sp1[1], sp1[0] - sp4[0], round(float(parsed_line[2])), 'E')
                 print(gear_suggestion)
                 if gear_suggestion != gear_suggestion_before:
-                    #Thread(target=gear_img, args=(gear_suggestion,)).start()
+                    # Thread(target=gear_img, args=(gear_suggestion,)).start()
                     gear_img(gear_suggestion)
                     gear_suggestion_before = gear_suggestion
             date_time.set(datetime.fromtimestamp(round(float(parsed_line[0]))).strftime("%d/%m/%Y\n%H:%M"))
@@ -168,10 +166,9 @@ date_time_txt = canvas.create_text(50, int(h) - 150, font=Font(size=30, family="
 gear_txt = canvas.create_text(int(w) / 2, 0.75 * int(h), font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
                               fill="#DDE6ED", text=gear.get(), anchor=tk.CENTER)
 position_txt = canvas.create_text(40, 40, font=Font(size=30, family="MADE INFINITY PERSONAL USE"),
-                              fill="#DDE6ED", text=position.get(), anchor=tk.NW)
+                                  fill="#DDE6ED", text=position.get(), anchor=tk.NW)
 lap_time_txt = canvas.create_text(40, 100, font=Font(size=30, family="MADE INFINITY PERSONAL USE"),
-                              fill="#DDE6ED", text=lap_time.get(), anchor=tk.NW)
-
+                                  fill="#DDE6ED", text=lap_time.get(), anchor=tk.NW)
 
 
 def on_speed_change(varname, i, m) -> None:
@@ -213,8 +210,6 @@ todo_text = {
 def gear_img(todo: Union[str, None]) -> None:
     shift_img_on_canvas = None
     if todo is not None:
-        #shift_img = tk.PhotoImage(file=f"img/{todo}.gif")
-        #shift_img_on_canvas = canvas.create_image(int(w) / 2 + 200, int(h) / 2 - 150, anchor=tk.NW, image=shift_img)
         shift_img_on_canvas = canvas.create_text(int(w) / 2 + 250, int(h) / 2 - 200,
                                                  font=Font(size=100, family="Arial", weight="bold"), fill="#DDE6ED",
                                                  text=f"{todo_text[todo]}", anchor=tk.CENTER)
