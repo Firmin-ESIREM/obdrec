@@ -49,7 +49,6 @@ csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 
 
 def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, combustion: str, current_gear: str = None) -> Union[str, None]:
-    print(current_gear)
     acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
     rpm_limit = [0, 0, 0, 0]
     if combustion == "E":  # rpm limit for petrol motorisation
