@@ -48,7 +48,7 @@ if argv[1] == "replay" and len(argv) == 3:
 csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 
 
-def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, combustion: str) -> Union[str, None]:
+def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, combustion: str, current_gear: str = None) -> Union[str, None]:
     acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
     rpm_limit = [0, 0, 0, 0]
     if combustion == "E":  # rpm limit for petrol motorisation
@@ -56,10 +56,10 @@ def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, comb
     elif combustion == "D":  # rpm limit for diesel motorisation
         rpm_limit = [1300, 2000, 2700, 3500]
     if 15 < new_speed < 90:
-        if acceleration < -2 and rpm < rpm_limit[1]:
+        if acceleration < -2 and rpm < rpm_limit[1] and current_gear != "1":
             return "down"
         if -2 < acceleration < 2:
-            if rpm < rpm_limit[0]:
+            if rpm < rpm_limit[0] and current_gear != "1":
                 return "down"
             elif rpm > rpm_limit[2]:
                 return "up"
@@ -88,12 +88,16 @@ def live_trip() -> None:
             Thread(target=redo_rpm_arc, args=(data["rpm"], int(data["EngineMaxRpm"]))).start()
         else:
             Thread(target=redo_rpm_arc, args=(data["rpm"],)).start()
-        if all((sp1, sp2, sp3, sp4)):
-            gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
-            Thread(target=gear_img, args=(gear_suggestion,)).start()
         if "Gear" in elements:
+            if all((sp1, sp2, sp3, sp4)):
+                gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E', data["Gear"])
+                Thread(target=gear_img, args=(gear_suggestion,)).start()
             print('displaying gear')
             gear.set(data["Gear"])
+        else:
+            if all((sp1, sp2, sp3, sp4)):
+                gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
+                Thread(target=gear_img, args=(gear_suggestion,)).start()
 
 
 def recorded_trip_loop() -> None:
