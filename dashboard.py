@@ -108,7 +108,7 @@ def live_trip() -> None:
         if "IsRaceOn" in elements and data["RacePosition"] != 0:
             current_lap = round(data["CurrentLap"])
             nb_seconds = current_lap % 60
-            nb_minutes = (current_lap - nb_seconds) / 60
+            nb_minutes = (current_lap - nb_seconds) // 60
             if nb_minutes > 0:
                 lap_time.set(f"Temps du tour : {nb_minutes} min {nb_seconds} s")
             else:
