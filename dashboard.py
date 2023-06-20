@@ -27,7 +27,6 @@ mode = dashboard.LIVE
 if len(argv) not in [2, 3] \
         or (argv[1] == "replay" and len(argv) != 3) \
         or (argv[1] == "live" and len(argv) != 2) \
-        or (argv[1] == "forza" and len(argv) != 2) \
         or argv[1] not in ["live", "replay"]:
     print(
         "The arguments you specified are invalid.\n"
@@ -44,8 +43,6 @@ if argv[1] == "replay" and len(argv) == 3:
     if not (argv[2].endswith(".csv")):
         print("The file you provided does not seem to be a CSV file.", file=stderr)
         sys_exit(1)
-elif argv[1] == "forza":
-    mode = dashboard.FORZA
 
 
 csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
@@ -95,6 +92,7 @@ def live_trip() -> None:
             gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
             Thread(target=gear_img, args=(gear_suggestion,)).start()
         if "Gear" in elements:
+            print('displaying gear')
             gear.set(data["Gear"])
 
 
