@@ -93,16 +93,16 @@ def retrieve_data() -> None:
     global IP, PORT
 
     while True:
-        receive_data = receive_forza_data(PORT, IP)
+        receive_data = receive_forza_data(PORT, IP)  # connect to forza
         global LAST_RECEIVED
-        if (time() - LAST_RECEIVED) < 0.2:
+        if (time() - LAST_RECEIVED) < 0.2:  # limit the number of data receive per second
             continue
         LAST_RECEIVED = time()
         data_decoded = decoded_data(receive_data)  # decoded data
         DATA["IsRaceOn"] = data_decoded["IsRaceOn"]
         DATA["EngineMaxRpm"] = data_decoded["EngineMaxRpm"]
         DATA["rpm"] = data_decoded["CurrentEngineRpm"]
-        DATA["speed"] = data_decoded["Speed"] * 3.6
+        DATA["speed"] = data_decoded["Speed"] * 3.6  # convert m/s to km/h
         DATA["BestLap"] = data_decoded["BestLap"]
         DATA["CurrentLap"] = data_decoded["CurrentLap"]
         DATA["LapNumber"] = data_decoded["LapNumber"]

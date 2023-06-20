@@ -103,11 +103,12 @@ def live_trip() -> None:
             Thread(target=redo_acceleration_gauge, args=(data["Accel"],)).start()
         if "Brake" in elements:
             Thread(target=redo_braking_gauge, args=(data["Brake"],)).start()
-        if "IsRaceOn" in elements and bool(data["IsRaceOn"]):
-            print(data["BestLap"])
-            print(data["CurrentLap"])
-            print(data["LapNumber"])
-            print(data["RacePosition"])
+        if "IsRaceOn" in elements and data["RacePosition"] != 0:
+            print(f"best lap{data['BestLap']}")
+            print(f"current lap{data['CurrentLap']}")
+            print(f"no lap{data['LapNumber']}")
+            print(f"race pos{data['RacePosition']}")
+
 
 
 def recorded_trip_loop() -> None:
