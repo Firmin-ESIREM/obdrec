@@ -21,6 +21,8 @@ date_time = tk.StringVar(ui, datetime.now().strftime("%d/%m/%Y\n%H:%M"))
 gear = tk.StringVar(ui, "")
 RPM_INDICATOR = [None, None]
 GEAR_IMG = None
+ACCELERATION_GAUGE = None
+BRAKING_GAUGE = None
 
 mode = dashboard.LIVE
 
@@ -92,12 +94,13 @@ def live_trip() -> None:
             if all((sp1, sp2, sp3, sp4)):
                 gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E', data["Gear"])
                 Thread(target=gear_img, args=(gear_suggestion,)).start()
-            print('displaying gear')
             gear.set(data["Gear"])
         else:
             if all((sp1, sp2, sp3, sp4)):
                 gear_suggestion = gear_change(sp4[0], sp1[0], sp1[1] - sp4[1], data["rpm"], 'E')
                 Thread(target=gear_img, args=(gear_suggestion,)).start()
+        if "Accel" in elements:
+            Thread(target=redo_acceleration_gauge, args=(data["Accel"],)).start()
 
 
 def recorded_trip_loop() -> None:
@@ -201,6 +204,18 @@ def redo_rpm_arc(rpm: int, max_rpm: int = 8000) -> None:
         canvas.delete(RPM_INDICATOR[0])
         canvas.delete(RPM_INDICATOR[1])
     RPM_INDICATOR = [left, right]
+
+
+def draw_gauge(value: int, pos_x: int, pos_y: int, size_x: int, size_y: int):
+    return canvas.create_rectangle(pos_x, pos_y + size_y * (1 - (value / 255)), pos_x + size_x, pos_y + size_y, fill="#DDE6ED")
+
+
+def redo_acceleration_gauge(acceleration: int) -> None:
+    gauge = draw_gauge(acceleration, int(w) - 80, int(h) - 60, 15, 40)
+    global ACCELERATION_GAUGE
+    if ACCELERATION_GAUGE is not None:
+        canvas.delete(ACCELERATION_GAUGE)
+    ACCELERATION_GAUGE = gauge
 
 
 def set_date_time() -> None:
