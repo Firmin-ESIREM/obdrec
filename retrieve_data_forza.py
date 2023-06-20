@@ -46,7 +46,7 @@ def decoded_data(data: bytes) -> dict[str, int]:
     """
     Decode data from Forza.
     :param data: encoded data
-    :return: a dictionary
+    :return: a dict containing the decoded data
     """
     data_decoded = {}
     # additional var
@@ -88,12 +88,12 @@ LAST_RECEIVED = time()
 def retrieve_data() -> None:
     """
     Retrieve encoded data from Forza send them decoded with a UDP socket.
-    :return: Nothing
+    :return:
     """
     global IP, PORT
 
     while True:
-        receive_data = receive_forza_data(PORT, IP)  # connect to forza
+        receive_data = receive_forza_data(PORT, IP)  # connect to Forza
         global LAST_RECEIVED
         if (time() - LAST_RECEIVED) < 0.2:  # limit the number of data receive per second
             continue

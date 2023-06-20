@@ -10,9 +10,9 @@ connection = OBD()  # connect to OBD adapter
 
 def car_on(rpm: int) -> bool:
     """
-    Function that verify the car is on.
+    Function that checks if the car is on.
     :param rpm: Current rpm
-    :return:
+    :return: a boolean that tells if the car is on or not
     """
     return rpm != 0 and rpm is not None
 
@@ -26,7 +26,7 @@ DATA = {
 
 def pull_data() -> None:
     """
-    Function needed to pull data, log them in a csv file and send them with a UDP socket.
+    Function needed to pull data, log them in a CSV file and send them with a UDP socket.
     :return:
     """
     while True:

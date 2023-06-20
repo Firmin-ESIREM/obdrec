@@ -1,5 +1,6 @@
 from typing import Union
 
+
 def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, combustion: str,
                 current_gear: str = None) -> Union[str, None]:
     """
@@ -10,7 +11,7 @@ def gear_change(old_speed: int, new_speed: int, time_diff: float, rpm: int, comb
     :param rpm: current number of rpm
     :param combustion: engine combustion type. Can be 'E' or 'D'
     :param current_gear: current gear
-    :return: 'up' or 'down' or nothing
+    :return: 'up', 'down' or None, depending on the most fuel-economic option
     """
     acceleration = (new_speed / 3.6 - old_speed / 3.6) / time_diff
     rpm_limit = [0, 0, 0, 0]

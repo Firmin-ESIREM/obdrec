@@ -53,7 +53,7 @@ csv_header = "time;speed_kph;rpm;intake_temperature_degC\n"
 
 def live_trip() -> None:
     """
-    Control the dashboard for live trip or for Forza.
+    Control the dashboard for a live trip (IRL or Forza).
     :return:
     """
     sp1, sp2, sp3, sp4 = None, None, None, None
@@ -104,7 +104,7 @@ def live_trip() -> None:
 
 def recorded_trip_loop() -> None:
     """
-    Control the dashboard when you replay a trip.
+    Control the dashboard for replaying a trip.
     :return:
     """
     sp1, sp2, sp3, sp4, gear_suggestion_before = None, None, None, None, None
@@ -159,42 +159,42 @@ lap_time_txt = canvas.create_text(40, 100, font=Font(size=30, family="MADE INFIN
 
 def on_speed_change(varname, i, m) -> None:
     """
-    Function needed to trace the variable speed.
+    Function needed to trace the variable `speed`.
     """
     canvas.itemconfigure(speed_txt, text=ui.getvar(varname))
 
 
 def on_temperature_change(varname, i, m) -> None:
     """
-    Function needed to trace the variable temperature.
+    Function needed to trace the variable `temperature`.
     """
     canvas.itemconfigure(temperature_txt, text=ui.getvar(varname))
 
 
 def on_date_time_change(varname, i, m) -> None:
     """
-    Function needed to show the date on the dashboard.
+    Function needed to trace the variable `date_time`.
     """
     canvas.itemconfigure(date_time_txt, text=ui.getvar(varname))
 
 
 def on_gear_change(varname, i, m) -> None:
     """
-    Function needed to trace the variable gear.
+    Function needed to trace the variable `gear`.
     """
     canvas.itemconfigure(gear_txt, text=ui.getvar(varname))
 
 
 def on_lap_time_change(varname, i, m) -> None:
     """
-    Function needed to trace variable lap time.
+    Function needed to trace the variable `lap_time`.
     """
     canvas.itemconfigure(lap_time_txt, text=ui.getvar(varname))
 
 
 def on_position_change(varname, i, m) -> None:
     """
-        Function needed to trace variable position.
+        Function needed to trace the variable `position`.
     """
     canvas.itemconfigure(position_txt, text=ui.getvar(varname))
 
@@ -213,7 +213,7 @@ todo_text = {
 
 def gear_img(todo: Union[str, None]) -> None:
     """
-    Function needed to trace the shifting suggestion.
+    Function needed to display the shifting suggestion.
     """
     shift_img_on_canvas = None
     if todo is not None:
@@ -228,7 +228,7 @@ def gear_img(todo: Union[str, None]) -> None:
 
 def redo_rpm_arc(rpm: int, max_rpm: int = 8000) -> None:
     """
-    Function needed to trace the arc that show the rpm.
+    Function needed to display the arc that shows the current rpm.
     :param rpm: Current rpm
     :param max_rpm: Maximun rpm only for Forza
     :return:
@@ -246,9 +246,10 @@ def redo_rpm_arc(rpm: int, max_rpm: int = 8000) -> None:
     RPM_INDICATOR = [left, right]
 
 
-def draw_gauge(value: int, pos_x: int, pos_y: int, size_x: int, size_y: int):
+def draw_gauge(value: int, pos_x: int, pos_y: int, size_x: int, size_y: int) -> int:
     """
-    Function needed to trace gauges.
+    Function needed to draw the acceleration and braking gauges.
+    :return: the ID of the created rectangle gauge
     """
     return canvas.create_rectangle(pos_x, pos_y + size_y * (1 - (value / 255)), pos_x + size_x, pos_y + size_y,
                                    fill="#DDE6ED", outline="")
@@ -256,7 +257,7 @@ def draw_gauge(value: int, pos_x: int, pos_y: int, size_x: int, size_y: int):
 
 def redo_acceleration_gauge(acceleration: int) -> None:
     """
-    Function needed to trace acceleration rate. Only for Forza.
+    Function needed to draw the acceleration gauge. Only for Forza.
     :param acceleration: Current acceleration rate
     :return:
     """
@@ -269,7 +270,7 @@ def redo_acceleration_gauge(acceleration: int) -> None:
 
 def redo_braking_gauge(braking: int) -> None:
     """
-    Function needed to trace braking rate. Only for Forza.
+    Function needed to draw the braking gauge. Only for Forza.
     :param braking: Current braking rate
     :return:
     """
@@ -282,7 +283,7 @@ def redo_braking_gauge(braking: int) -> None:
 
 def set_date_time() -> None:
     """
-    Function needed to refresh the variable date time every 5 seconds.
+    Function needed to refresh the date and time every 5 seconds.
     :return:
     """
     while True:
