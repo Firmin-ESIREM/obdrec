@@ -34,4 +34,4 @@ Xbox Games Studios, Playground Games ou Turn 10 Studios._
 Programme développé par [Gabin Blanchet](mailto:Gabin_Blanchet@etu.u-bourgogne.fr) et
 [Firmin Launay](mailto:Firmin_Launay@etu.u-bourgogne.fr), en deuxième année de cycle préparatoire à
 l’[ESIREM](https://esirem.u-bourgogne.fr/), dans le cadre du projet de programmation. Ce programme est distribué sous la
-[licence MIT](./blob/main/LICENSE)
+[licence MIT](./LICENSE)
