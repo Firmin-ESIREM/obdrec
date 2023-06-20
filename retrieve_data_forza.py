@@ -1,4 +1,4 @@
-import struct
+from struct import unpack
 from sys import argv
 from threading import Thread
 from udp_server import send_udp, receive_forza_data
@@ -64,13 +64,13 @@ def decoded_data(data: bytes) -> dict[str, int]:
         elif d_type == 'u32':
             decoded = int.from_bytes(current, byteorder='little', signed=False)
         elif d_type == 'f32':
-            decoded = struct.unpack('f', current)[0]
+            decoded = unpack('f', current)[0]
         elif d_type == 'u16':
-            decoded = struct.unpack('H', current)[0]
+            decoded = unpack('H', current)[0]
         elif d_type == 'u8':
-            decoded = struct.unpack('B', current)[0]
+            decoded = unpack('B', current)[0]
         elif d_type == 's8':
-            decoded = struct.unpack('b', current)[0]
+            decoded = unpack('b', current)[0]
 
         # adds decoded data to the dict
         data_decoded[i] = decoded
