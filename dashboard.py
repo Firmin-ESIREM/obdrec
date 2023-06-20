@@ -19,6 +19,8 @@ speed = tk.StringVar(ui, '0')
 temperature = tk.StringVar(ui, '0°C')
 date_time = tk.StringVar(ui, datetime.now().strftime("%d/%m/%Y\n%H:%M"))
 gear = tk.StringVar(ui, "")
+position = tk.StringVar(ui, "")
+lap_time = tk.StringVar(ui, "")
 RPM_INDICATOR = [None, None]
 GEAR_IMG = None
 ACCELERATION_GAUGE = None
@@ -104,6 +106,7 @@ def live_trip() -> None:
         if "Brake" in elements:
             Thread(target=redo_braking_gauge, args=(data["Brake"],)).start()
         if "IsRaceOn" in elements and data["RacePosition"] != 0:
+            #
             print(f"best lap{data['BestLap']}")
             print(f"current lap{data['CurrentLap']}")
             print(f"no lap{data['LapNumber']}")
@@ -158,6 +161,11 @@ date_time_txt = canvas.create_text(50, int(h) - 150, font=Font(size=30, family="
                                    fill="#DDE6ED", text=date_time.get(), anchor=tk.NW)
 gear_txt = canvas.create_text(int(w) / 2, 0.75 * int(h), font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
                               fill="#DDE6ED", text=gear.get(), anchor=tk.CENTER)
+position_txt = canvas.create_text(80, 40, font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
+                              fill="#DDE6ED", text=position.get(), anchor=tk.NW)
+lap_time_txt = canvas.create_text(40, 40, font=Font(size=50, family="MADE INFINITY PERSONAL USE"),
+                              fill="#DDE6ED", text=lap_time.get(), anchor=tk.NW)
+
 
 
 def on_speed_change(varname, i, m) -> None:
@@ -176,10 +184,20 @@ def on_gear_change(varname, i, m) -> None:
     canvas.itemconfigure(gear_txt, text=ui.getvar(varname))
 
 
+def on_lap_time_change(varname, i, m) -> None:
+    canvas.itemconfigure(lap_time_txt, text=ui.getvar(varname))
+
+
+def on_position_change(varname, i, m) -> None:
+    canvas.itemconfigure(position_txt, text=ui.getvar(varname))
+
+
 speed.trace_variable('w', on_speed_change)
 temperature.trace_variable('w', on_temperature_change)
 date_time.trace_variable('w', on_date_time_change)
 gear.trace_variable('w', on_gear_change)
+lap_time.trace_variable('w', on_lap_time_change)
+position.trace_variable('w', on_position_change)
 todo_text = {
     "up": "↑",
     "down": "↓"
